@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- 背景 圆角矩形 -->
+  <rect width="1024" height="1024" rx="200" ry="200" fill="#0D1117"/>
+
+  <!-- git 分叉线 (左侧) -->
+  <!-- 主干竖线 -->
+  <line x1="280" y1="200" x2="280" y2="824" stroke="#3FB950" stroke-width="36" stroke-linecap="round"/>
+  <!-- 分支斜线 上 -->
+  <line x1="280" y1="340" x2="460" y2="480" stroke="#3FB950" stroke-width="36" stroke-linecap="round"/>
+  <!-- 分支竖线 -->
+  <line x1="460" y1="480" x2="460" y2="620" stroke="#3FB950" stroke-width="36" stroke-linecap="round"/>
+  <!-- 合并斜线 下 -->
+  <line x1="460" y1="620" x2="280" y2="720" stroke="#3FB950" stroke-width="36" stroke-linecap="round"/>
+
+  <!-- 分叉节点圆点 -->
+  <circle cx="280" cy="340" r="28" fill="#3FB950"/>
+  <circle cx="280" cy="720" r="28" fill="#3FB950"/>
+  <circle cx="460" cy="480" r="28" fill="#58A6FF"/>
+  <circle cx="460" cy="620" r="28" fill="#58A6FF"/>
+  <!-- 顶部和底部端点 -->
+  <circle cx="280" cy="200" r="22" fill="#3FB950" opacity="0.5"/>
+  <circle cx="280" cy="824" r="22" fill="#3FB950" opacity="0.5"/>
+
+  <!-- 放大镜 (右侧) -->
+  <!-- 镜圈 -->
+  <circle cx="660" cy="420" r="160" fill="none" stroke="#58A6FF" stroke-width="48"/>
+  <!-- 镜柄 -->
+  <line x1="775" y1="535" x2="880" y2="760" stroke="#58A6FF" stroke-width="52" stroke-linecap="round"/>
+
+  <!-- 放大镜内部 git 符号 > _ -->
+  <text x="596" y="452" font-family="monospace" font-size="112" font-weight="bold" fill="#3FB950" opacity="0.9">&gt;_</text>
+</svg>
