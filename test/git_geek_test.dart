@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:git_geek/src/logic/git_log_parser.dart';
-import 'package:git_geek/src/logic/git_tag_parser.dart';
-import 'package:git_geek/src/logic/semver.dart';
-import 'package:git_geek/src/models/git_commit.dart';
-import 'package:git_geek/src/models/git_tag.dart';
+import 'package:git_geek/data/git_commit_source.dart';
+import 'package:git_geek/logic/git_log_parser.dart';
+import 'package:git_geek/logic/git_tag_parser.dart';
+import 'package:git_geek/logic/semver.dart';
+import 'package:git_geek/models/git_commit.dart';
+import 'package:git_geek/models/git_tag.dart';
 
 void main() {
   group('GitTagParser', () {
@@ -114,6 +115,53 @@ void main() {
     });
   });
 
+  group('Merge drift', () {
+    test('p2 推进被 merge 丢弃时标 silentlyDropped', () {
+      // P1: pkg@aaa，P2: aaa->ccc，M 保留 aaa：p1 无 diff，p2 有 ccc->aaa。
+      final updated = GitCommitDataSource.applyMergeDrift(
+        existing: const [],
+        changesP1: const [],
+        changesP2: const [
+          SubmoduleChange(path: 'pkg', oldSha: 'ccc', newSha: 'aaa'),
+        ],
+        secondParentSha: 'p2sha',
+      );
+      expect(updated, isNotNull);
+      expect(updated!.single.silentlyDropped, isTrue);
+      expect(updated.single.droppedSha, 'ccc');
+      expect(updated.single.droppedFromParent, 'p2sha');
+    });
+
+    test('双边无 submodule 变化时返回 null', () {
+      expect(
+        GitCommitDataSource.applyMergeDrift(
+          existing: const [
+            SubmoduleChange(path: 'pkg', oldSha: 'aaa', newSha: 'bbb'),
+          ],
+          changesP1: const [],
+          changesP2: const [],
+          secondParentSha: 'p2sha',
+        ),
+        isNull,
+      );
+    });
+
+    test('仅 p1 侧变化时移除误报', () {
+      final updated = GitCommitDataSource.applyMergeDrift(
+        existing: const [
+          SubmoduleChange(path: 'pkg', oldSha: 'aaa', newSha: 'bbb'),
+        ],
+        changesP1: const [
+          SubmoduleChange(path: 'pkg', oldSha: 'aaa', newSha: 'bbb'),
+        ],
+        changesP2: const [],
+        secondParentSha: 'p2sha',
+      );
+      expect(updated, isNotNull);
+      expect(updated, isEmpty);
+    });
+  });
+
   group('SemVer', () {
     test('orders versions and prerelease correctly', () {
       final tags = [
@@ -123,7 +171,7 @@ void main() {
         const GitTag(name: 'v2.0.0'),
         const GitTag(name: 'nota'),
       ];
-      // 原语义：ASC 时版本优先且升序；DESC 是 -base 全反转
+      // ASC 时版本优先且升序；DESC 是 -base 全反转
       final asc =
           tags.sortedByMode(TagSortMode.semverAsc).map((e) => e.name).toList();
       expect(asc, ['v1.2.0', 'v1.10.0', 'v2.0.0-rc.1', 'v2.0.0', 'nota']);

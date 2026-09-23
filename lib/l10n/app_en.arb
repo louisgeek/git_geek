@@ -1,0 +1,201 @@
+{
+  "@@locale": "en",
+  "subtitleDesktop": "Desktop: local dirs or remote URLs (https/ssh) with auto-clone cache",
+  "subtitleNoGit": "Local git is not supported on this platform; please use the desktop app",
+  "langZh": "中文",
+  "langEn": "English",
+  "about": "About",
+  "aboutTitle": "About GitGeek en",
+  "aboutVersionLabel": "Version",
+  "aboutCopyright": "© 2026 GitGeek",
+  "close": "Close",
+  "repoCardTitle": "Repository (any repo)",
+  "repoPathLabel": "Repo path (local dir or remote URL)",
+  "repoPathPlaceholder": "D:/code/my-repo or https://github.com/owner/repo.git",
+  "remoteUrlHint": "Remote URL: auto-clones to local cache on first refresh, then incremental updates",
+  "cachePrefix": "Cache",
+  "copy": "Copy",
+  "remoteNameLabel": "Remote name or URL",
+  "remoteNamePlaceholder": "origin or https://github.com/owner/repo.git",
+  "scopePrefix": "Scope",
+  "mainRepo": "Main repo",
+  "submoduleWord": "Submodule",
+  "btnRefreshLocal": "Refresh local",
+  "btnRefreshRemote": "Refresh remote",
+  "btnRefreshAll": "Refresh all",
+  "btnSample": "Sample data",
+  "btnClear": "Clear",
+  "cloningFallback": "Cloning remote repo…",
+  "loadingLocal": "Loading local… ",
+  "loadingRemote": "Loading remote…",
+  "loadingCommits": "Loading commits… ",
+  "errLocalPrefix": "Local",
+  "errRemotePrefix": "Remote",
+  "errSubmodulePrefix": "Submodule",
+  "statLocal": "Local",
+  "statRemote": "Remote",
+  "statSynced": "Synced",
+  "statOnlyLocal": "Local only",
+  "statOnlyRemote": "Remote only",
+  "diverged": "Diverged",
+  "divergedWarn": "Warning: {count} same-name tags point to different commits; check for accidental tag moves",
+  "@divergedWarn": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchTagLabel": "Search tags / sha / message / author",
+  "sortLabel": "Sort",
+  "sortSemver": "SemVer",
+  "sortName": "Name",
+  "filterAll": "All",
+  "tabCompare": "Compare",
+  "tabCommits": "Commits",
+  "emptyCompare": "No data: tap \"Refresh all\" / \"Sample data\"",
+  "badgeOnlyLocal": "Local only · to push",
+  "badgeOnlyRemote": "Remote only · to pull",
+  "noSha": "no sha",
+  "missing": "missing",
+  "detailTitle": "Details",
+  "missingPushHint": "—(missing, needs push)",
+  "missingPullHint": "—(missing, needs pull)",
+  "explainSynced": "Note: both sides match, nothing to do",
+  "explainOnlyLocal": "Note: local only; run `git push origin {tag}` to push",
+  "@explainOnlyLocal": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "explainOnlyRemote": "Note: remote only; run `git fetch origin tag {tag}` to pull",
+  "@explainOnlyRemote": {
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      }
+    }
+  },
+  "explainDiverged": "Note: same name but different sha; the tag may have been moved, verify before overwriting",
+  "viewCommitBtn": "View commits",
+  "expandHint": "Tap to expand",
+  "annotatedShort": "Annotated",
+  "lightweightShort": "Lightweight",
+  "pureNameNoSha": "sha: —(name-only list, no sha)",
+  "fullSide": "Full",
+  "tagTypePrefix": "Type",
+  "annotatedLong": "Annotated tag",
+  "lightweightLong": "Lightweight tag",
+  "tagNotesPrefix": "tag notes",
+  "emptyLocalTab": "No local tags",
+  "emptyRemoteTab": "No remote tags",
+  "currentScopePrefix": "Scope",
+  "searchCommitLabel": "Search commits / sha / author / tag",
+  "currentBranchChip": "Current branch",
+  "errBranchPrefix": "Branches",
+  "branchLabel": "Branch (empty=current)",
+  "branchPlaceholder": "main / HEAD / --all",
+  "limitLabel": "Limit",
+  "btnRefreshCommits": "Refresh commits",
+  "newestFirst": "Newest first",
+  "oldestFirst": "Oldest first",
+  "loadingCommitsLong": "Loading commit history…",
+  "errCommitPrefix": "Commits",
+  "emptyCommits": "No commits: tap \"Refresh commits\" / \"Sample data\"",
+  "emptySubject": "(empty message)",
+  "addedWord": "added",
+  "removedWord": "removed",
+  "fromWord": "from",
+  "mergeEdited": "→(edited in merge)",
+  "newValueFrom": "↑ new value from  ",
+  "oldFromMerge": "old value via merge  ",
+  "oldFrom": "old value by  ",
+  "lastSwitch": "last switch  ",
+  "newValueUnknown": "↑ new-value source unknown (raise limit & refresh)",
+  "silentDrop": "⚠ merge silently dropped",
+  "keptWord": "kept",
+  "copied": "Copied",
+  "resolveFail": "Repo resolve failed",
+  "unknownError": "Unknown error",
+  "cloningToCache": "Cloning remote repo to cache…",
+  "localTagsOk": "Local refresh: {n} tags",
+  "@localTagsOk": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "clonedTagsOk": "Cloned & refreshed: {n} tags",
+  "@clonedTagsOk": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "remoteTagsOk": "Remote refresh: {n} tags",
+  "@remoteTagsOk": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "remoteTagsFromCache": "Remote read failed; using cached tags: {n}",
+  "@remoteTagsFromCache": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "commitsOk": "Commit refresh: {n} entries",
+  "@commitsOk": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "clonedCommitsOk": "Cloned & refreshed: {n} entries",
+  "@clonedCommitsOk": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "sampleLoaded": "Sample data loaded",
+  "cleared": "Cleared",
+  "localTagsFail": "Failed to read local tags",
+  "remoteTagsFail": "Failed to read remote tags",
+  "commitsFail": "Failed to read commits",
+  "branchesFail": "Failed to read branches",
+  "submodulesFail": "Failed to read submodules",
+  "remoteUrlFail": "Failed to read remote URL",
+  "submoduleBranchFail": "Failed to read submodule branch",
+  "dirName": "dir",
+  "dirNotExist": "Directory does not exist",
+  "gitNotInstalled": "Cannot run git; make sure it is installed and on PATH",
+  "gitRunFail": "Cannot run git",
+  "updatingCache": "Updating cached repo…",
+  "updateStaleCache": "Update failed, using stale cache",
+  "cloningCache": "Cloning to cache…",
+  "filterFallback": "Filtered clone failed, retrying full clone…",
+  "cacheCleanFail": "Cannot clean cache dir (maybe in use); delete it manually and retry",
+  "cloneUnusable": "Cloned repo still unusable; check the URL/permissions and retry",
+  "platformUnsupported": "Not supported on {platform}",
+  "@platformUnsupported": {
+    "placeholders": {
+      "platform": {
+        "type": "String"
+      }
+    }
+  },
+  "subUninitialized": "Uninitialized",
+  "subModified": "Modified",
+  "subConflict": "Conflict"
+}

@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:git_geek/src/state/controller.dart';
-import 'package:git_geek/src/ui/git_tag_page.dart';
+import 'package:git_geek/l10n/gen/app_localizations.dart';
+import 'package:git_geek/l10n/strings.dart';
+import 'package:git_geek/di/logging.dart';
+import 'package:git_geek/di/router.dart';
+import 'package:git_geek/di/storage.dart';
+import 'package:git_geek/features/workspace/presentation/workspace_notifier.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const ProviderScope(child: MyApp()));
+  // 预加载 prefs：SettingsRepository 唯一偏好源（override）。
+  // key 与老 GitTagSettings 一致（gitgeek.*），老数据直接复用。
+  final prefs = await SharedPreferences.getInstance();
+  runApp(
+    ProviderScope(
+      overrides: [appPrefsProvider.overrideWithValue(prefs)],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerStatefulWidget {
@@ -19,15 +32,25 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   void initState() {
     super.initState();
+    ref.read(loggerProvider).i('GitGeek starting');
     Future.microtask(
-      () => ref.read(gitTagControllerProvider.notifier).init(),
+      () => ref.read(workspaceProvider.notifier).init(
+            systemDefault: AppLang.fromLocale(
+              WidgetsBinding.instance.platformDispatcher.locale,
+            ),
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final router = ref.watch(appRouterProvider);
+    final ui = ref.watch(workspaceProvider);
+    return MaterialApp.router(
       title: 'GitGeek',
+      locale: ui.lang.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
@@ -37,11 +60,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             seedColor: Colors.blue, brightness: Brightness.dark),
         useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: SafeArea(
-          child: GitTagPage(),
-        ),
-      ),
+      routerConfig: router,
     );
   }
 }
