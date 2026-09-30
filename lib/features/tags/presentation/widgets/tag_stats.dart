@@ -45,6 +45,7 @@ class TagStats extends StatelessWidget {
   }
 }
 
+/// 单项统计卡：数字 + 标签。
 class StatCard extends StatelessWidget {
   final String label;
   final int count;

@@ -41,7 +41,6 @@ Map<String, dynamic> _$GitTagToJson(_GitTag instance) => <String, dynamic>{
 const _$TagSourceEnumMap = {
   TagSource.local: 'local',
   TagSource.remote: 'remote',
-  TagSource.sample: 'sample',
 };
 
 _TagCompareItem _$TagCompareItemFromJson(Map<String, dynamic> json) =>

@@ -22,6 +22,7 @@ abstract class TagsState with _$TagsState {
   }) = _TagsState;
 }
 
+/// Tags 派生视图：合并对比、统计、过滤排序后的可见列表。
 extension TagsStateX on TagsState {
   List<TagCompareItem> get allCompare =>
       buildCompareItems(localTags, remoteTags);

@@ -1,3 +1,4 @@
+import 'package:git_geek/core/result.dart';
 import 'package:git_geek/data/git_commit_source.dart';
 import 'package:git_geek/data/git_url.dart';
 import 'package:git_geek/data/remote_repo.dart';
@@ -10,14 +11,31 @@ import 'package:logger/logger.dart';
 /// 避免老 controller 里三次 resolve 触发三次 fetch --tags --prune。
 /// 装配见 `features/commits/di/providers.dart`。
 class CommitsRepository {
+  static const _tag = '[commits]';
+
   final Logger _log;
-  final GitCommitDataSource _ds;
-  CommitsRepository(this._log, this._ds);
+  final GitCommitDataSource _dataSource;
+
+  CommitsRepository(this._log, this._dataSource);
 
   /// 计算实际生效目录（含 scope），内部走 RemoteRepoResolver（带缓存/锁）。
-  Future<String> resolveEffectiveDir(
-      String repoPath, String scope, AppLang lang) {
-    return RemoteRepoResolver.resolveEffectiveDir(repoPath, scope, lang);
+  Future<Result<String>> resolveEffectiveDir(
+    String repoPath,
+    String scope,
+    AppLang lang,
+  ) async {
+    try {
+      return Result.ok(
+        await RemoteRepoResolver.resolveEffectiveDir(repoPath, scope, lang),
+      );
+    } catch (e, st) {
+      _log.w(
+        '$_tag resolveEffectiveDir 失败 $repoPath',
+        error: e,
+        stackTrace: st,
+      );
+      return Result.err(cleanError(e), cause: e, stackTrace: st);
+    }
   }
 
   /// 远程 URL 且本地无缓存（首次会触发克隆，用于显示 cloning 提示）。
@@ -26,59 +44,87 @@ class CommitsRepository {
     return !(await RemoteRepoResolver.isCached(repoPath.trim()));
   }
 
-  Future<List<GitCommit>> fetchCommits(
+  /// 拉取提交列表。
+  Future<Result<List<GitCommit>>> fetchCommits(
     String dir,
     String branch,
     int limit,
     AppLang lang,
   ) async {
-    try {
-      return await _ds.fetchCommits(dir, branch, limit, lang);
-    } catch (e, st) {
-      _log.w('[commits] fetchCommits 失败 dir=$dir', error: e, stackTrace: st);
-      rethrow;
+    final result = await _dataSource.fetchCommits(dir, branch, limit, lang);
+    if (result case Err(:final message, :final cause, :final stackTrace)) {
+      _log.w(
+        '$_tag fetchCommits 失败 dir=$dir: $message',
+        error: cause,
+        stackTrace: stackTrace,
+      );
     }
+    return result;
   }
 
-  Future<List<GitBranch>> fetchBranches(String dir, AppLang lang) async {
-    try {
-      return await _ds.fetchBranches(dir, lang);
-    } catch (e, st) {
-      _log.w('[commits] fetchBranches 失败 dir=$dir', error: e, stackTrace: st);
-      rethrow;
+  /// 拉取分支列表。
+  Future<Result<List<GitBranch>>> fetchBranches(
+    String dir,
+    AppLang lang,
+  ) async {
+    final result = await _dataSource.fetchBranches(dir, lang);
+    if (result case Err(:final message, :final cause, :final stackTrace)) {
+      _log.w(
+        '$_tag fetchBranches 失败 dir=$dir: $message',
+        error: cause,
+        stackTrace: stackTrace,
+      );
     }
+    return result;
   }
 
-  Future<List<GitSubmodule>> fetchSubmodules(
-      String dir, AppLang lang) async {
-    try {
-      return await _ds.fetchSubmodules(dir, lang);
-    } catch (e, st) {
-      _log.w('[commits] fetchSubmodules 失败 dir=$dir',
-          error: e, stackTrace: st);
-      rethrow;
+  /// 拉取子模块现状。
+  Future<Result<List<GitSubmodule>>> fetchSubmodules(
+    String dir,
+    AppLang lang,
+  ) async {
+    final result = await _dataSource.fetchSubmodules(dir, lang);
+    if (result case Err(:final message, :final cause, :final stackTrace)) {
+      _log.w(
+        '$_tag fetchSubmodules 失败 dir=$dir: $message',
+        error: cause,
+        stackTrace: stackTrace,
+      );
     }
+    return result;
   }
 
-  Future<String> fetchRemoteUrl(
-      String dir, String remote, AppLang lang) async {
-    try {
-      return await _ds.fetchRemoteUrl(dir, remote, lang);
-    } catch (e, st) {
-      _log.w('[commits] fetchRemoteUrl 失败 dir=$dir',
-          error: e, stackTrace: st);
-      rethrow;
+  /// 拉取远端地址。
+  Future<Result<String>> fetchRemoteUrl(
+    String dir,
+    String remote,
+    AppLang lang,
+  ) async {
+    final result = await _dataSource.fetchRemoteUrl(dir, remote, lang);
+    if (result case Err(:final message, :final cause, :final stackTrace)) {
+      _log.w(
+        '$_tag fetchRemoteUrl 失败 dir=$dir: $message',
+        error: cause,
+        stackTrace: stackTrace,
+      );
     }
+    return result;
   }
 
-  Future<String> fetchSubmoduleBranch(
-      String dir, String subPath, AppLang lang) async {
-    try {
-      return await _ds.fetchSubmoduleBranch(dir, subPath, lang);
-    } catch (e, st) {
-      _log.w('[commits] fetchSubmoduleBranch 失败 $subPath',
-          error: e, stackTrace: st);
-      rethrow;
+  /// 拉取子模块当前分支。
+  Future<Result<String>> fetchSubmoduleBranch(
+    String dir,
+    String subPath,
+    AppLang lang,
+  ) async {
+    final result = await _dataSource.fetchSubmoduleBranch(dir, subPath, lang);
+    if (result case Err(:final message, :final cause, :final stackTrace)) {
+      _log.w(
+        '$_tag fetchSubmoduleBranch 失败 $subPath: $message',
+        error: cause,
+        stackTrace: stackTrace,
+      );
     }
+    return result;
   }
 }

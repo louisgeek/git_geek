@@ -1,3 +1,4 @@
+import 'package:git_geek/core/result.dart';
 import 'package:git_geek/data/git_runner.dart';
 import 'package:git_geek/data/git_url.dart';
 import 'package:git_geek/data/remote_repo.dart';
@@ -5,6 +6,7 @@ import 'package:git_geek/l10n/strings.dart';
 import 'package:git_geek/logic/git_log_parser.dart';
 import 'package:git_geek/models/git_commit.dart';
 
+// git log 自定义格式：`%n` 换行，`===COMMIT===/===END===` 为提交边界。
 const String _commitFmt =
     '===COMMIT===%nsha: %H%nparents: %P%nauthor: %an%ndate: %ad%nrefs: %D%nsubject: %s%n%b%n===END===';
 
@@ -15,16 +17,19 @@ class GitCommitDataSource {
   final GitRunner _runner;
   GitCommitDataSource(this._runner);
 
+  /// 是否支持本地 git。
   bool get supportsNativeGit => _runner.supportsNativeGit;
 
-  Future<List<GitCommit>> fetchCommits(
+  /// 拉取提交列表：topo 排序 + raw 子模块变更，再补详情与漂移检测。
+  Future<Result<List<GitCommit>>> fetchCommits(
       String repoPath, String branch, int limit, AppLang lang) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      throw Exception(tr.platformUnsupported('Web'));
+      return Result.err(tr.platformUnsupported('Web'));
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
+      // 条数钳制到 1~5000，防过大拖慢解析。
       final n = limit.clamp(1, 5000);
       final args = [
         'log',
@@ -43,74 +48,86 @@ class GitCommitDataSource {
       final withSubjects = await enrichSubmoduleChanges(dir, parsed);
       final withDrift = await detectMergeSubmoduleDrift(dir, withSubjects);
       final withDriftEnriched = await enrichSubmoduleChanges(dir, withDrift);
-      return await fillRecordGaps(
-          dir, attachSubmoduleRecordInfo(withDriftEnriched));
-    } catch (e) {
-      throw Exception(
-          '${tr.commitsFail}: $e (${tr.dirName}=${repoPath.trim().isEmpty ? '.' : repoPath.trim()})');
+      return Result.ok(await fillRecordGaps(
+          dir, attachSubmoduleRecordInfo(withDriftEnriched)));
+    } catch (e, st) {
+      return Result.err(
+        '${tr.commitsFail}: ${cleanError(e)} (${tr.dirName}=${repoPath.trim().isEmpty ? '.' : repoPath.trim()})',
+        cause: e,
+        stackTrace: st,
+      );
     }
   }
 
-  Future<List<GitBranch>> fetchBranches(String repoPath, AppLang lang) async {
+  /// 拉取分支列表。
+  Future<Result<List<GitBranch>>> fetchBranches(
+      String repoPath, AppLang lang) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      throw Exception(tr.platformUnsupported('Web'));
+      return Result.err(tr.platformUnsupported('Web'));
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final out = await _runner
           .run(dir, ['branch', '-a', '--format=%(HEAD) %(refname:short)']);
       if (!out.ok) throw Exception(out.stderr);
-      return GitLogParser.parseBranches(out.stdout);
-    } catch (e) {
-      throw Exception('${tr.branchesFail}: $e');
+      return Result.ok(GitLogParser.parseBranches(out.stdout));
+    } catch (e, st) {
+      return Result.err('${tr.branchesFail}: ${cleanError(e)}',
+          cause: e, stackTrace: st);
     }
   }
 
-  Future<List<GitSubmodule>> fetchSubmodules(
+  /// 拉取子模块现状。
+  Future<Result<List<GitSubmodule>>> fetchSubmodules(
       String repoPath, AppLang lang) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      throw Exception(tr.platformUnsupported('Web'));
+      return Result.err(tr.platformUnsupported('Web'));
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final out = await _runner.run(dir, ['submodule', 'status']);
       if (!out.ok) throw Exception(out.stderr);
-      return GitSubmoduleParser.parse(out.stdout);
-    } catch (e) {
-      throw Exception('${tr.submodulesFail}: $e');
+      return Result.ok(GitSubmoduleParser.parse(out.stdout));
+    } catch (e, st) {
+      return Result.err('${tr.submodulesFail}: ${cleanError(e)}',
+          cause: e, stackTrace: st);
     }
   }
 
-  Future<String> fetchRemoteUrl(
+  /// 拉取远端地址。
+  Future<Result<String>> fetchRemoteUrl(
       String repoPath, String remote, AppLang lang) async {
     final tr = t(lang);
-    if (!supportsNativeGit) throw Exception(tr.platformUnsupported('Web'));
+    if (!supportsNativeGit) return Result.err(tr.platformUnsupported('Web'));
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final out = await _runner.run(
           dir, ['remote', 'get-url', remote.trim().isEmpty ? 'origin' : remote.trim()]);
       if (!out.ok) throw Exception(out.stderr);
-      return out.stdout.trim();
-    } catch (e) {
-      throw Exception('${tr.remoteUrlFail}: $e');
+      return Result.ok(out.stdout.trim());
+    } catch (e, st) {
+      return Result.err('${tr.remoteUrlFail}: ${cleanError(e)}',
+          cause: e, stackTrace: st);
     }
   }
 
-  Future<String> fetchSubmoduleBranch(
+  /// 拉取子模块当前分支：进子模块目录查当前分支。
+  Future<Result<String>> fetchSubmoduleBranch(
       String repoPath, String subPath, AppLang lang) async {
     final tr = t(lang);
-    if (!supportsNativeGit) throw Exception(tr.platformUnsupported('Web'));
+    if (!supportsNativeGit) return Result.err(tr.platformUnsupported('Web'));
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final subDir = '$dir/$subPath';
       final out =
           await _runner.run(subDir, ['branch', '--show-current']);
       if (!out.ok) throw Exception(out.stderr);
-      return out.stdout.trim();
-    } catch (e) {
-      throw Exception('${tr.submoduleBranchFail}: $e');
+      return Result.ok(out.stdout.trim());
+    } catch (e, st) {
+      return Result.err('${tr.submoduleBranchFail}: ${cleanError(e)}',
+          cause: e, stackTrace: st);
     }
   }
 
@@ -132,6 +149,7 @@ class GitCommitDataSource {
         final got = await _queryMiniCommits(
             '$workDir/${entry.key}', entry.value.toList());
         for (final e in got.entries) {
+          // 缓存 key：路径 + NUL + sha，避免拼接冲突。
           infos['${entry.key}\x00${e.key}'] = e.value;
         }
       } catch (_) {}
@@ -262,6 +280,7 @@ class GitCommitDataSource {
         shas.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet().toList();
     if (distinct.isEmpty) return {};
     final result = <String, _MiniCommit>{};
+    // 每批 80 个 sha，避免单次参数过长；`<00>` 为字段分隔。
     for (var i = 0; i < distinct.length; i += 80) {
       final chunk = distinct.sublist(
           i, i + 80 > distinct.length ? distinct.length : i + 80);

@@ -2,8 +2,6 @@
   "@@locale": "zh",
   "subtitleDesktop": "桌面端: 支持本地目录或远程 URL(https/ssh), 自动克隆到缓存",
   "subtitleNoGit": "当前平台不支持本地 git，请使用桌面端",
-  "langZh": "中文",
-  "langEn": "English",
   "about": "关于",
   "aboutVersionLabel": "版本",
   "aboutCopyright": "© 2026 GitGeek",
@@ -99,7 +97,6 @@
   "unknownError": "未知错误",
   "cloningToCache": "正在克隆远程仓库到缓存…",
   "localTagsOk": "本地刷新成功 {n} 个",
-  "clonedTagsOk": "已克隆并刷新 {n} 个",
   "remoteTagsOk": "远程刷新成功 {n} 个",
   "remoteTagsFromCache": "远程读取失败, 已用缓存 tag {n} 个",
   "commitsOk": "提交记录刷新成功 {n} 条",
@@ -115,8 +112,6 @@
   "submoduleBranchFail": "读取子模块分支失败",
   "dirName": "目录",
   "dirNotExist": "目录不存在",
-  "gitNotInstalled": "无法执行 git, 请确认已安装并在 PATH 中",
-  "gitRunFail": "无法执行 git",
   "updatingCache": "更新缓存仓库…",
   "updateStaleCache": "更新失败, 使用旧缓存",
   "cloningCache": "正在克隆到缓存…",
@@ -126,5 +121,6 @@
   "platformUnsupported": "{platform} 端不支持",
   "subUninitialized": "未初始化",
   "subModified": "有改动",
-  "subConflict": "冲突"
+  "subConflict": "冲突",
+  "aboutTitle": "关于 GitGeek"
 }

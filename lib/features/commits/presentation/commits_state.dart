@@ -33,6 +33,7 @@ abstract class CommitsState with _$CommitsState {
   }) = _CommitsState;
 }
 
+/// Commits 派生视图：过滤排序后的可见提交与加载态汇总。
 extension CommitsStateX on CommitsState {
   List<GitCommit> get visibleCommits {
     final filtered = commits.filterByQuery(commitQuery);

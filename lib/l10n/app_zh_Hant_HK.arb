@@ -2,8 +2,6 @@
   "@@locale": "zh_Hant_HK",
   "subtitleDesktop": "桌面端: 支援本地目錄或遠端 URL(https/ssh), 自動複製到快取",
   "subtitleNoGit": "目前平台不支援本地 git，請使用桌面端",
-  "langZh": "中文",
-  "langEn": "English",
   "about": "關於",
   "aboutVersionLabel": "版本",
   "aboutCopyright": "© 2026 GitGeek",
@@ -99,7 +97,6 @@
   "unknownError": "未知錯誤",
   "cloningToCache": "正在複製遠端倉庫到快取…",
   "localTagsOk": "本地重新載入成功 {n} 個",
-  "clonedTagsOk": "已複製並重新載入 {n} 個",
   "remoteTagsOk": "遠端重新載入成功 {n} 個",
   "remoteTagsFromCache": "遠端讀取失敗, 已用快取 tag {n} 個",
   "commitsOk": "提交記錄重新載入成功 {n} 項",
@@ -115,8 +112,6 @@
   "submoduleBranchFail": "載入子模組分支失敗",
   "dirName": "目錄",
   "dirNotExist": "目錄不存在",
-  "gitNotInstalled": "無法執行 git, 請確認已安裝並在 PATH 中",
-  "gitRunFail": "無法執行 git",
   "updatingCache": "更新快取倉庫…",
   "updateStaleCache": "更新失敗, 使用舊快取",
   "cloningCache": "正在複製到快取…",
@@ -126,5 +121,6 @@
   "platformUnsupported": "{platform} 端不支援",
   "subUninitialized": "未初始化",
   "subModified": "有改動",
-  "subConflict": "衝突"
+  "subConflict": "衝突",
+  "aboutTitle": "關於 GitGeek"
 }

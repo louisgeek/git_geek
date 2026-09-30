@@ -2,6 +2,7 @@ import 'package:git_geek/models/git_tag.dart';
 
 /// 纯 Dart 解析器
 class GitTagParser {
+  /// 解析本地 tag 输出：show-ref 优先，否则按纯名列表处理。
   static List<GitTag> parseLocal(String raw) {
     final text = raw.trim();
     if (text.isEmpty) return const [];
@@ -14,6 +15,7 @@ class GitTagParser {
     return lines.toSet().map((e) => GitTag(name: e, source: TagSource.local)).toList();
   }
 
+  /// 解析远程 tag 输出：ls-remote 优先，否则按纯名列表处理。
   static List<GitTag> parseRemote(String raw) {
     final text = raw.trim();
     if (text.isEmpty) return const [];
@@ -27,10 +29,13 @@ class GitTagParser {
     return lines.toSet().map((e) => GitTag(name: e, source: TagSource.remote)).toList();
   }
 
+  /// 解析 show-ref/ls-remote 行：剥离 `refs/tags/` 前缀并区分附注剥离行。
   static List<GitTag> _parseShowRefLines(List<String> lines, TagSource source) {
+    // peeled 存 `name^{}` 行的提交 sha，plain 存 tag 对象 sha。
     final peeled = <String, String>{};
     final plain = <String, String>{};
     for (final line in lines) {
+      // 空白分隔：sha + ref 两列。
       final parts = line.split(RegExp(r'\s+'));
       if (parts.length < 2) continue;
       final sha = parts[0].trim();
@@ -40,6 +45,7 @@ class GitTagParser {
       ref = ref.substring(ref.indexOf('refs/tags/') + 'refs/tags/'.length);
       if (ref.isEmpty) continue;
       if (ref.endsWith('^{}')) {
+        // `^{}` 为附注 tag 剥离行，存其指向的提交 sha。
         final name = ref.substring(0, ref.length - 3);
         if (name.isNotEmpty) peeled[name] = sha;
       } else {

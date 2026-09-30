@@ -8,6 +8,7 @@ import 'package:git_geek/di/storage.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_notifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// 应用入口：预加载偏好后启动，偏好经 ProviderScope 注入。
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // 预加载 prefs：SettingsRepository 唯一偏好源（override）。
@@ -21,6 +22,7 @@ void main() async {
   );
 }
 
+/// 应用根组件：装配路由、语言、明暗主题。
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
@@ -33,6 +35,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   void initState() {
     super.initState();
     ref.read(loggerProvider).i('GitGeek starting');
+    // 首帧后异步初始化 workspace，避免在 initState 同步读写 provider。
     Future.microtask(
       () => ref.read(workspaceProvider.notifier).init(
             systemDefault: AppLang.fromLocale(

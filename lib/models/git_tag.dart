@@ -27,12 +27,15 @@ abstract class GitTag with _$GitTag {
       _$GitTagFromJson(json);
 }
 
-enum TagSource { local, remote, sample }
+/// Tag 来源命名空间（与 git 概念一致）：本地 `refs/tags` 直读 vs `ls-remote` 远端结果。
+enum TagSource { local, remote }
 
 /// 本地 vs 远程对比状态
 enum TagSyncStatus { synced, onlyLocal, onlyRemote, diverged }
 
+/// 同步状态的本地化文案。
 extension TagSyncStatusX on TagSyncStatus {
+  /// 取该状态的展示文案。
   String label(AppLocalizations t) {
     switch (this) {
       case TagSyncStatus.synced:
@@ -61,9 +64,12 @@ abstract class TagCompareItem with _$TagCompareItem {
       _$TagCompareItemFromJson(json);
 }
 
+/// Tag 排序模式：语义版本升/降序、名称升/降序。
 enum TagSortMode { semverDesc, semverAsc, nameAsc, nameDesc }
 
+/// 排序模式的本地化文案。
 extension TagSortModeX on TagSortMode {
+  /// 取该排序模式的展示文案。
   String label(AppLocalizations t) {
     switch (this) {
       case TagSortMode.semverDesc:
@@ -78,9 +84,12 @@ extension TagSortModeX on TagSortMode {
   }
 }
 
+/// Tag 过滤条件：全部及各同步状态。
 enum TagFilter { all, synced, onlyLocal, onlyRemote, diverged }
 
+/// 过滤条件的本地化文案。
 extension TagFilterX on TagFilter {
+  /// 取该过滤条件的展示文案。
   String label(AppLocalizations t) {
     switch (this) {
       case TagFilter.all:
@@ -97,6 +106,7 @@ extension TagFilterX on TagFilter {
   }
 }
 
+/// Tag 同步统计：本地/远程计数及各状态计数。
 @freezed
 abstract class TagStats with _$TagStats {
   const factory TagStats({
@@ -112,6 +122,7 @@ abstract class TagStats with _$TagStats {
       _$TagStatsFromJson(json);
 }
 
+/// 合并本地与远程 tag 为对比项：同名配对，否则记为仅单侧。
 List<TagCompareItem> buildCompareItems(
   List<GitTag> localTags,
   List<GitTag> remoteTags,
@@ -130,11 +141,13 @@ List<TagCompareItem> buildCompareItems(
 }
 
 String? _normSha(String? s) {
+  // sha 归一：去空格转小写，空值归 null 便于比较。
   final t = s?.trim().toLowerCase();
   return (t == null || t.isEmpty) ? null : t;
 }
 
 TagSyncStatus _comparePair(GitTag l, GitTag r) {
+  // 附注 tag 优先比 tag 对象 sha，其次比提交 sha；轻量 tag 直接比提交 sha。
   final lTag = _normSha(l.tagObjectSha);
   final rTag = _normSha(r.tagObjectSha);
   if (lTag != null && rTag != null) {
@@ -154,6 +167,7 @@ TagSyncStatus _comparePair(GitTag l, GitTag r) {
   return lCommit == rCommit ? TagSyncStatus.synced : TagSyncStatus.diverged;
 }
 
+/// 按对比项统计各同步状态计数。
 TagStats calcStats(List<TagCompareItem> items) => TagStats(
       localCount: items.where((e) => e.local != null).length,
       remoteCount: items.where((e) => e.remote != null).length,

@@ -1,3 +1,4 @@
+import 'package:git_geek/core/result.dart';
 import 'package:git_geek/features/tags/di/providers.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
 import 'package:git_geek/l10n/strings.dart';
@@ -34,20 +35,28 @@ class TagsNotifier extends _$TagsNotifier {
   }) async {
     final tr = t(lang);
     state = state.copyWith(isLoadingLocal: true, localError: null);
-    try {
-      final repo = ref.read(tagsRepositoryProvider);
-      final dir = await repo.resolveDir(repoPath, scope, lang);
-      final tags = await repo.fetchLocalTags(dir, lang);
-      state = state.copyWith(
-        isLoadingLocal: false,
-        localTags: tags,
-        lastRefreshInfo: tr.localTagsOk(tags.length),
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoadingLocal: false,
-        localError: _msg(e) ?? tr.unknownError,
-      );
+    final repo = ref.read(tagsRepositoryProvider);
+    switch (await repo.resolveDir(repoPath, scope, lang)) {
+      case Err(:final message):
+        state = state.copyWith(
+          isLoadingLocal: false,
+          localError: message,
+        );
+        return;
+      case Ok(value: final dir):
+        switch (await repo.fetchLocalTags(dir, lang)) {
+          case Ok(value: final tags):
+            state = state.copyWith(
+              isLoadingLocal: false,
+              localTags: tags,
+              lastRefreshInfo: tr.localTagsOk(tags.length),
+            );
+          case Err(:final message):
+            state = state.copyWith(
+              isLoadingLocal: false,
+              localError: message,
+            );
+        }
     }
   }
 
@@ -59,34 +68,41 @@ class TagsNotifier extends _$TagsNotifier {
   }) async {
     final tr = t(lang);
     state = state.copyWith(isLoadingRemote: true, remoteError: null);
-    try {
-      final repo = ref.read(tagsRepositoryProvider);
-      final dir = await repo.resolveDir(repoPath, scope, lang);
-      final trimmedRemote = remote.trim().isEmpty ? 'origin' : remote.trim();
-
-      List<GitTag> tags;
-      var fromCache = false;
-      try {
-        tags = await repo.fetchRemoteTags(dir, trimmedRemote, lang);
-      } catch (_) {
-        final cached = await repo.cachedRemoteTags(dir, trimmedRemote);
-        if (cached.isEmpty) rethrow;
-        tags = cached;
-        fromCache = true;
-      }
-      state = state.copyWith(
-        isLoadingRemote: false,
-        remoteTags: tags,
-        remoteFromCache: fromCache,
-        lastRefreshInfo: fromCache
-            ? tr.remoteTagsFromCache(tags.length)
-            : tr.remoteTagsOk(tags.length),
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoadingRemote: false,
-        remoteError: _msg(e) ?? tr.unknownError,
-      );
+    final repo = ref.read(tagsRepositoryProvider);
+    switch (await repo.resolveDir(repoPath, scope, lang)) {
+      case Err(:final message):
+        state = state.copyWith(
+          isLoadingRemote: false,
+          remoteError: message,
+        );
+        return;
+      case Ok(value: final dir):
+        final trimmedRemote =
+            remote.trim().isEmpty ? 'origin' : remote.trim();
+        switch (await repo.fetchRemoteTags(dir, trimmedRemote, lang)) {
+          case Ok(value: final tags):
+            state = state.copyWith(
+              isLoadingRemote: false,
+              remoteTags: tags,
+              remoteFromCache: false,
+              lastRefreshInfo: tr.remoteTagsOk(tags.length),
+            );
+          case Err(:final message):
+            final cached = await repo.cachedRemoteTags(dir, trimmedRemote);
+            if (cached.isEmpty) {
+              state = state.copyWith(
+                isLoadingRemote: false,
+                remoteError: message,
+              );
+            } else {
+              state = state.copyWith(
+                isLoadingRemote: false,
+                remoteTags: cached,
+                remoteFromCache: true,
+                lastRefreshInfo: tr.remoteTagsFromCache(cached.length),
+              );
+            }
+        }
     }
   }
 
@@ -117,10 +133,4 @@ class TagsNotifier extends _$TagsNotifier {
   void setSort(TagSortMode m) => state = state.copyWith(sortMode: m);
 
   void setFilter(TagFilter f) => state = state.copyWith(filter: f);
-
-  String? _msg(Object e) {
-    final s = e.toString();
-    const prefix = 'Exception: ';
-    return s.startsWith(prefix) ? s.substring(prefix.length) : s;
-  }
 }

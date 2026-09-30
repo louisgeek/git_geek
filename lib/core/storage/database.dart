@@ -11,6 +11,7 @@ import 'package:sembast/sembast_memory.dart';
 /// 文档结构 `remote_tags`：record key = 仓库 key ->
 /// `{tags: [{name, commitSha, tagObjectSha}], updatedAt: millis}`。
 /// 写是单条 put（原子整体替换），读是单条 get，不做关系查询。
+/// 单条 tag 缓存：仅存对比所需的名与 sha。
 class CachedTag {
   final String name;
   final String? commitSha;
@@ -22,12 +23,14 @@ class CachedTag {
     this.tagObjectSha,
   });
 
+  /// 转 Sembast 可存的 map。
   Map<String, Object?> toMap() => {
         'name': name,
         'commitSha': commitSha,
         'tagObjectSha': tagObjectSha,
       };
 
+  /// 从 Sembast map 恢复。
   factory CachedTag.fromMap(Map<String, Object?> map) => CachedTag(
         name: (map['name'] ?? '') as String,
         commitSha: map['commitSha'] as String?,
@@ -43,6 +46,7 @@ class RemoteTagsCache {
   const RemoteTagsCache({required this.tags, required this.updatedAt});
 }
 
+/// Sembast 离线库：remote tags 按仓库 key 存一条文档。
 class AppDatabase {
   final Future<Database> _dbFuture;
 

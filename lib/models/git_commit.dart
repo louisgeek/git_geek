@@ -24,9 +24,12 @@ abstract class GitCommit with _$GitCommit {
       _$GitCommitFromJson(json);
 }
 
+/// 提交的便捷取值：短 sha 与非 tag 引用。
 extension GitCommitX on GitCommit {
+  /// 短 sha：超 8 位截前 8 位。
   String get shortSha => sha.length <= 8 ? sha : sha.substring(0, 8);
 
+  /// 非 tag 引用：refs 按逗号切分后去掉 `tag: ` 片段。
   List<String> get nonTagRefs {
     final r = refs;
     if (r == null || r.trim().isEmpty) return const [];
@@ -38,6 +41,7 @@ extension GitCommitX on GitCommit {
   }
 }
 
+/// 本地分支：名 + 是否当前分支。
 @freezed
 abstract class GitBranch with _$GitBranch {
   const factory GitBranch({
@@ -49,7 +53,9 @@ abstract class GitBranch with _$GitBranch {
       _$GitBranchFromJson(json);
 }
 
+/// 提交列表的关键字过滤。
 extension CommitQueryX on List<GitCommit> {
+  /// 按关键字过滤提交：匹配 sha、主题、正文、作者、tag 及子模块变化。
   List<GitCommit> filterByQuery(String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return this;
@@ -71,9 +77,12 @@ extension CommitQueryX on List<GitCommit> {
 
 // ---------------- Submodule ----------------
 
+/// 子模块状态：正常、未初始化、有修改、冲突。
 enum SubmoduleStatus { ok, uninitialized, modified, conflict }
 
+/// 子模块状态的本地化文案。
 extension SubmoduleStatusX on SubmoduleStatus {
+  /// 取该状态的展示文案（正常返回空串）。
   String label(AppLocalizations t) {
     switch (this) {
       case SubmoduleStatus.ok:
@@ -128,14 +137,20 @@ abstract class SubmoduleChange with _$SubmoduleChange {
       _$SubmoduleChangeFromJson(json);
 }
 
+/// 子模块指针变化的便捷判断。
 extension SubmoduleChangeX on SubmoduleChange {
+  // 全零 sha 视作空（新增/删除边界）。
   static bool _isZero(String? s) =>
       s == null || s.isEmpty || s.split('').every((c) => c == '0');
 
+  /// 是否新增子模块：旧空新非空。
   bool get isAdded => _isZero(oldSha) && !_isZero(newSha);
+
+  /// 是否删除子模块：新空旧非空。
   bool get isRemoved => _isZero(newSha) && !_isZero(oldSha);
 }
 
+/// 工作区子模块现状：路径、sha、分支及状态。
 @freezed
 abstract class GitSubmodule with _$GitSubmodule {
   const factory GitSubmodule({
@@ -149,10 +164,13 @@ abstract class GitSubmodule with _$GitSubmodule {
       _$GitSubmoduleFromJson(json);
 }
 
+/// 子模块的便捷取值：短 sha 与展示名。
 extension GitSubmoduleX on GitSubmodule {
+  /// 短 sha：超 8 位截前 8 位。
   String? get shortSha =>
       sha == null ? null : (sha!.length <= 8 ? sha : sha!.substring(0, 8));
 
+  /// 展示名：取路径最后一段。
   String get displayName {
     final p = path.split('/').last.split('\\').last;
     return p.isEmpty ? path : p;
@@ -170,6 +188,7 @@ List<GitCommit> attachSubmoduleRecordInfo(
       extraHistory.where((e) => !loadedShas.contains(e.sha)).toList();
   final lastSwitch = <String, GitCommit>{};
   final lastCarried = <String, GitCommit>{};
+  // 缓存 key：路径 + NUL + sha，避免拼接冲突。
   String key(String path, String sha) => '$path\x00$sha';
   final perCommit = <String, List<SubmoduleChange>>{};
   final chain = [...olderOnly.reversed, ...commits.reversed];

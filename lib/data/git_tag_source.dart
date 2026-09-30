@@ -1,3 +1,4 @@
+import 'package:git_geek/core/result.dart';
 import 'package:git_geek/data/git_runner.dart';
 import 'package:git_geek/data/git_url.dart';
 import 'package:git_geek/data/remote_repo.dart';
@@ -28,12 +29,15 @@ class GitTagDataSource {
   final GitRunner _runner;
   GitTagDataSource(this._runner);
 
+  /// 是否支持本地 git。
   bool get supportsNativeGit => _runner.supportsNativeGit;
 
-  Future<List<GitTag>> fetchLocalTags(String repoPath, AppLang lang) async {
+  /// 拉取本地 tag：show-ref 优先，失败回退 `git tag -l`，再补附注与提交详情。
+  Future<Result<List<GitTag>>> fetchLocalTags(
+      String repoPath, AppLang lang) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      throw Exception(tr.platformUnsupported('Web'));
+      return Result.err(tr.platformUnsupported('Web'));
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
@@ -48,18 +52,23 @@ class GitTagDataSource {
           ? parsed
           : GitTagParser.parseLocal(
               (await _runner.run(dir, ['tag', '-l'])).stdoutOrThrow());
-      if (base.isEmpty) return base;
-      return await _enrichLocal(dir, base);
-    } catch (e) {
-      throw Exception('${tr.localTagsFail}: $e (${tr.dirName}=${_dirOrSelf(repoPath)})');
+      if (base.isEmpty) return const Result.ok([]);
+      return Result.ok(await _enrichLocal(dir, base));
+    } catch (e, st) {
+      return Result.err(
+        '${tr.localTagsFail}: ${cleanError(e)} (${tr.dirName}=${_dirOrSelf(repoPath)})',
+        cause: e,
+        stackTrace: st,
+      );
     }
   }
 
-  Future<List<GitTag>> fetchRemoteTags(
+  /// 拉取远程 tag：`ls-remote --tags` 解析后补本地已存在对象的提交详情。
+  Future<Result<List<GitTag>>> fetchRemoteTags(
       String repoPath, String remote, AppLang lang) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      throw Exception(tr.platformUnsupported('Web'));
+      return Result.err(tr.platformUnsupported('Web'));
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
@@ -67,10 +76,14 @@ class GitTagDataSource {
       final out = (await _runner.run(dir, ['ls-remote', '--tags', target]))
           .stdoutOrThrow();
       final parsed = GitTagParser.parseRemote(out);
-      if (parsed.isEmpty) return parsed;
-      return await _enrichRemote(dir, parsed);
-    } catch (e) {
-      throw Exception('${tr.remoteTagsFail}: $e (remote=$remote)');
+      if (parsed.isEmpty) return const Result.ok([]);
+      return Result.ok(await _enrichRemote(dir, parsed));
+    } catch (e, st) {
+      return Result.err(
+        '${tr.remoteTagsFail}: ${cleanError(e)} (remote=$remote)',
+        cause: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -113,6 +126,7 @@ class GitTagDataSource {
   }
 
   Future<Map<String, _TagRefInfo>> _queryTagRefs(String workDir) async {
+    // 用 NUL/RS 分隔字段与记录，避免主题正文里的换行干扰解析。
     final fmt =
         '${['%(refname:short)', '%(objecttype)', '%(taggername)', '%(taggerdate:format:%Y-%m-%d %H:%M)', '%(contents:subject)', '%(contents:body)'].join('%x00')}%x1e';
     final out = (await _runner.run(
@@ -137,6 +151,7 @@ class GitTagDataSource {
         shas.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet().toList();
     if (distinct.isEmpty) return {};
     final result = <String, _CommitInfo>{};
+    // 每批 80 个 sha，避免单次参数过长。
     for (var i = 0; i < distinct.length; i += 80) {
       final chunk = distinct.sublist(
           i, i + 80 > distinct.length ? distinct.length : i + 80);

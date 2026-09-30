@@ -4,6 +4,7 @@ import 'package:git_geek/l10n/gen/app_localizations.dart';
 import 'package:git_geek/models/git_commit.dart';
 
 /// 提交行组件（原 GitTagPage 同名类，原样迁移）。
+/// 可点击复制的短 sha。
 class CopyableId extends StatefulWidget {
   final String sha;
   final AppLocalizations t;
@@ -53,6 +54,7 @@ class _CopyableIdState extends State<CopyableId> {
   }
 }
 
+/// 溯源行：展示子模块旧/新值的来源提交。
 class RecordRow extends StatelessWidget {
   final String label;
   final SubmoduleRecord r;
@@ -99,6 +101,7 @@ class RecordRow extends StatelessWidget {
   }
 }
 
+/// 拼作者/日期/主题为一行摘要：空返回 null。
 String? subBrief(String? author, String? date, String? subject) {
   final v = [
     if (author?.trim().isNotEmpty ?? false) author!,
@@ -108,6 +111,7 @@ String? subBrief(String? author, String? date, String? subject) {
   return v.isEmpty ? null : v;
 }
 
+/// 提交行：主题 + 引用 + tag + 子模块变更与溯源。
 class CommitRow extends StatelessWidget {
   final GitCommit commit;
   final AppLocalizations t;

@@ -2,6 +2,7 @@ import 'package:git_geek/models/git_commit.dart';
 
 /// 提交记录解析器
 class GitLogParser {
+  /// 解析自定义格式的 `git log` 输出为提交列表。
   static List<GitCommit> parse(String raw) {
     final lines = raw.split('\n');
     final out = <GitCommit>[];
@@ -103,10 +104,13 @@ class GitLogParser {
     return out;
   }
 
+  // `git log --raw` 单行格式：旧/新 mode、旧/新 sha、状态、路径。
   static final RegExp _rawRe =
       RegExp(r'^:(\d{6}) (\d{6}) ([0-9a-f]+) ([0-9a-f]+) ([A-Z]\d*)\t(.*)$');
+  // 全零 sha 表示新增/删除边界。
   static final RegExp _zeroRe = RegExp(r'^0+$');
 
+  /// 从 raw 行提取子模块指针变化：仅保留 mode 含 160000 的行。
   static List<SubmoduleChange> parseRawSubmodules(List<String> rawLines) {
     final out = <SubmoduleChange>[];
     for (final line in rawLines) {
@@ -130,6 +134,7 @@ class GitLogParser {
     return out.where((e) => seen.add(e.path)).toList();
   }
 
+  /// 从 refs 字符串提取 tag 名：仅取 `tag: xxx` 片段。
   static List<String> extractTags(String refs) {
     if (refs.trim().isEmpty) return const [];
     return refs
@@ -141,6 +146,7 @@ class GitLogParser {
         .toList();
   }
 
+  /// 解析 `git branch -a` 输出：跳过 `->` 指向行并去重。
   static List<GitBranch> parseBranches(String raw) {
     final out = <GitBranch>[];
     for (final line in raw.split('\n')) {
@@ -165,12 +171,15 @@ class GitLogParser {
 
 /// `git submodule status` 解析
 class GitSubmoduleParser {
+  /// 解析子模块状态输出为子模块列表。
   static List<GitSubmodule> parse(String raw) {
+    // 4-40 位十六进制即视为合法 sha。
     final shaRegex = RegExp(r'[0-9a-fA-F]{4,40}');
     final out = <GitSubmodule>[];
     for (final rawLine in raw.split('\n')) {
       if (rawLine.trim().isEmpty) continue;
       if (rawLine.isEmpty) continue;
+      // 首字符为状态标志：-/+/U，其余视作正常。
       final flag = rawLine[0];
       final rest = rawLine.substring(1).trim();
       if (rest.isEmpty) continue;
@@ -204,6 +213,7 @@ class GitSubmoduleParser {
 
 /// 提交分支线计算（当前 UI 仅用 isMerge，保留数据供后续画线）
 class CommitGraphRow {
+  /// 所在车道下标。
   final int lane;
   final List<String?> before;
   final List<String?> after;
@@ -223,12 +233,14 @@ class CommitGraphRow {
   });
 }
 
+/// 提交图：按拓扑序排列的行与最大车道数。
 class CommitGraph {
   final List<CommitGraphRow> rows;
   final int maxLanes;
   const CommitGraph(this.rows, this.maxLanes);
 }
 
+/// 构建提交图：槽位下标即车道，值为该车道当前占用的提交 sha。
 CommitGraph buildCommitGraph(List<GitCommit> commits) {
   final slots = <String?>[];
   var maxLanes = 0;

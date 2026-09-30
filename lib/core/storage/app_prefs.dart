@@ -13,6 +13,7 @@ class SettingsRepository extends _$SettingsRepository {
   static const kSortMode = 'gitgeek.sortMode';
   static const kBranch = 'gitgeek.branch';
 
+  /// 从 SharedPreferences 构建初始偏好快照。
   @override
   SettingsState build() {
     final prefs = ref.watch(appPrefsProvider);
@@ -51,6 +52,7 @@ class SettingsRepository extends _$SettingsRepository {
   }
 }
 
+/// 偏好快照：仓库路径、远端、语言、排序、分支。
 class SettingsState {
   final String repoPath;
   final String remote;

@@ -24,5 +24,6 @@ Dio dio(Ref ref) {
   return dio;
 }
 
+/// GitHub API 装配：基于共享 Dio 实例。
 @Riverpod(keepAlive: true)
 GithubApi githubApi(Ref ref) => GithubApi(ref.watch(dioProvider));

@@ -56,12 +56,17 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
 
 String _$dioHash() => r'36ca932e87795b4bd95efd4b9413194e120b320f';
 
+/// GitHub API 装配：基于共享 Dio 实例。
+
 @ProviderFor(githubApi)
 final githubApiProvider = GithubApiProvider._();
+
+/// GitHub API 装配：基于共享 Dio 实例。
 
 final class GithubApiProvider
     extends $FunctionalProvider<GithubApi, GithubApi, GithubApi>
     with $Provider<GithubApi> {
+  /// GitHub API 装配：基于共享 Dio 实例。
   GithubApiProvider._()
     : super(
         from: null,

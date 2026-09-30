@@ -2,6 +2,7 @@ import 'package:git_geek/models/git_tag.dart';
 
 /// 语义版本比较
 class SemVerComparator {
+  /// 比较两个 tag 名：版本优先按语义比，非版本回退字典序。
   static int compare(String a, String b) {
     final na = _normalize(a);
     final nb = _normalize(b);
@@ -16,6 +17,7 @@ class SemVerComparator {
     return a.compareTo(b);
   }
 
+  /// 按排序模式比较两个 tag。
   static int compareTag(GitTag a, GitTag b, TagSortMode mode) {
     final base = compare(a.name, b.name);
     switch (mode) {
@@ -30,6 +32,7 @@ class SemVerComparator {
     }
   }
 
+  /// 按排序模式比较两个对比项。
   static int compareItem(TagCompareItem a, TagCompareItem b, TagSortMode mode) {
     final base = compare(a.name, b.name);
     switch (mode) {
@@ -55,6 +58,7 @@ class SemVerComparator {
   }
 
   static bool _isDigit(String c) {
+    // ASCII 码 48-57 即字符 '0'-'9'。
     final u = c.codeUnitAt(0);
     return u >= 48 && u <= 57;
   }
@@ -83,6 +87,7 @@ class SemVerComparator {
   }
 
   static int _compareDotParts(String a, String b) {
+    // 版本分隔符：点/下划线/斜线/加号都视作分段。
     final pa = a.split(RegExp(r'[._+/]'));
     final pb = b.split(RegExp(r'[._+/]'));
     final n = pa.length > pb.length ? pa.length : pb.length;
@@ -136,7 +141,9 @@ class SemVerComparator {
   }
 }
 
+/// 对比项列表的查询/过滤/排序。
 extension CompareQueryX on List<TagCompareItem> {
+  /// 按关键字过滤对比项：匹配 tag 名及两侧详情。
   List<TagCompareItem> filterByQuery(String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return this;
@@ -146,6 +153,7 @@ extension CompareQueryX on List<TagCompareItem> {
         _matchTag(it.remote, q)).toList();
   }
 
+  /// 按同步状态过滤对比项。
   List<TagCompareItem> filterByStatus(TagFilter filter) {
     if (filter == TagFilter.all) return this;
     return where((it) {
@@ -164,6 +172,7 @@ extension CompareQueryX on List<TagCompareItem> {
     }).toList();
   }
 
+  /// 按排序模式排序对比项。
   List<TagCompareItem> sortedByMode(TagSortMode mode) {
     final list = toList();
     list.sort((a, b) => SemVerComparator.compareItem(a, b, mode));
@@ -181,13 +190,16 @@ bool _matchTag(GitTag? t, String q) {
       (t.tagger?.toLowerCase().contains(q) ?? false);
 }
 
+/// Tag 列表的排序与查询。
 extension GitTagListX on List<GitTag> {
+  /// 按排序模式排序 tag。
   List<GitTag> sortedByMode(TagSortMode mode) {
     final list = toList();
     list.sort((a, b) => SemVerComparator.compareTag(a, b, mode));
     return list;
   }
 
+  /// 按关键字过滤 tag：匹配名、sha、作者、主题等。
   List<GitTag> filterByQuery(String query) {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return this;

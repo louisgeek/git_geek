@@ -116,18 +116,6 @@ abstract class AppLocalizations {
   /// **'Local git is not supported on this platform; please use the desktop app'**
   String get subtitleNoGit;
 
-  /// No description provided for @langZh.
-  ///
-  /// In en, this message translates to:
-  /// **'中文'**
-  String get langZh;
-
-  /// No description provided for @langEn.
-  ///
-  /// In en, this message translates to:
-  /// **'English'**
-  String get langEn;
-
   /// No description provided for @about.
   ///
   /// In en, this message translates to:
@@ -137,7 +125,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutTitle.
   ///
   /// In en, this message translates to:
-  /// **'About GitGeek en'**
+  /// **'About GitGeek'**
   String get aboutTitle;
 
   /// No description provided for @aboutVersionLabel.
@@ -704,12 +692,6 @@ abstract class AppLocalizations {
   /// **'Local refresh: {n} tags'**
   String localTagsOk(int n);
 
-  /// No description provided for @clonedTagsOk.
-  ///
-  /// In en, this message translates to:
-  /// **'Cloned & refreshed: {n} tags'**
-  String clonedTagsOk(int n);
-
   /// No description provided for @remoteTagsOk.
   ///
   /// In en, this message translates to:
@@ -799,18 +781,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Directory does not exist'**
   String get dirNotExist;
-
-  /// No description provided for @gitNotInstalled.
-  ///
-  /// In en, this message translates to:
-  /// **'Cannot run git; make sure it is installed and on PATH'**
-  String get gitNotInstalled;
-
-  /// No description provided for @gitRunFail.
-  ///
-  /// In en, this message translates to:
-  /// **'Cannot run git'**
-  String get gitRunFail;
 
   /// No description provided for @updatingCache.
   ///

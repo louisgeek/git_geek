@@ -63,12 +63,17 @@ final class AppPrefsProvider
 
 String _$appPrefsHash() => r'a59700ea41e8ee64793129da9b497246e8966a1c';
 
+/// Token 存储装配：基于安全存储，用于 GitHub/GitLab token。
+
 @ProviderFor(tokenStore)
 final tokenStoreProvider = TokenStoreProvider._();
+
+/// Token 存储装配：基于安全存储，用于 GitHub/GitLab token。
 
 final class TokenStoreProvider
     extends $FunctionalProvider<TokenStore, TokenStore, TokenStore>
     with $Provider<TokenStore> {
+  /// Token 存储装配：基于安全存储，用于 GitHub/GitLab token。
   TokenStoreProvider._()
     : super(
         from: null,
@@ -104,12 +109,17 @@ final class TokenStoreProvider
 
 String _$tokenStoreHash() => r'53547a9e1a333765e9f3c2c07caa06e2f047368c';
 
+/// 离线数据库装配：remote tags 兜底缓存，退出时自动关闭。
+
 @ProviderFor(appDatabase)
 final appDatabaseProvider = AppDatabaseProvider._();
+
+/// 离线数据库装配：remote tags 兜底缓存，退出时自动关闭。
 
 final class AppDatabaseProvider
     extends $FunctionalProvider<AppDatabase, AppDatabase, AppDatabase>
     with $Provider<AppDatabase> {
+  /// 离线数据库装配：remote tags 兜底缓存，退出时自动关闭。
   AppDatabaseProvider._()
     : super(
         from: null,

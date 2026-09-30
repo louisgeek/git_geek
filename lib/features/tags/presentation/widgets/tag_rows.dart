@@ -4,6 +4,7 @@ import 'package:git_geek/models/git_tag.dart';
 
 /// Tag 行组件（原 GitTagPage 同名类，原样迁移）。
 /// 另删掉了 `CompareRow.lang`：该字段存了但 build 里从没用过。
+/// 同步状态徽标。
 class StatusBadge extends StatelessWidget {
   final TagSyncStatus status;
   final AppLocalizations t;
@@ -24,6 +25,7 @@ class StatusBadge extends StatelessWidget {
   }
 }
 
+/// 对比行：展示同名 tag 本地/远端摘要，展开看详情。
 class CompareRow extends StatelessWidget {
   final TagCompareItem item;
   final AppLocalizations t;
@@ -133,6 +135,7 @@ class CompareRow extends StatelessWidget {
     );
   }
 
+  /// 首选主题：本地优先，否则用远端。
   Widget finalSubject(BuildContext context) {
     final subject = item.local?.commitSubject ?? item.remote?.commitSubject;
     if (subject == null || subject.trim().isEmpty) {
@@ -148,6 +151,7 @@ class CompareRow extends StatelessWidget {
   }
 }
 
+/// 单侧 tag 详情：提交信息 + 附注类型与备注。
 class TagSideDetail extends StatelessWidget {
   final String side;
   final AppLocalizations t;
@@ -214,6 +218,7 @@ class TagSideDetail extends StatelessWidget {
   }
 }
 
+/// 单侧 tag 行：本地/远端列表用，展开看完整详情。
 class SimpleTagRow extends StatelessWidget {
   final GitTag tag;
   final AppLocalizations t;
@@ -302,4 +307,5 @@ class SimpleTagRow extends StatelessWidget {
   }
 }
 
+/// 截短 sha：超 8 位取前 8 位。
 String _short8(String sha) => sha.length <= 8 ? sha : sha.substring(0, 8);

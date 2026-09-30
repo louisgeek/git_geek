@@ -4,15 +4,18 @@ library;
 import 'package:flutter/material.dart';
 import 'package:git_geek/l10n/gen/app_localizations.dart';
 
+/// 支持的界面语言：简体、繁体（台湾/香港桶）、英文。
 enum AppLang {
   zh('zh'),
   zhHant('zh_Hant'),
   zhHantHK('zh_Hant_HK'),
   en('en');
 
+  /// arb/系统侧的语言编码。
   final String code;
   const AppLang(this.code);
 
+  /// 按偏好编码解析语言：未知回退简体。
   static AppLang of(String? code) {
     final c = code?.trim().toLowerCase();
     return AppLang.values.firstWhere(
@@ -21,6 +24,7 @@ enum AppLang {
     );
   }
 
+  /// 转 Flutter Locale：繁体需带 scriptCode。
   Locale get locale => switch (this) {
         AppLang.zhHant =>
           const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
@@ -57,6 +61,7 @@ enum AppLang {
   }
 }
 
+/// 应用版本号：关于弹窗展示用。
 const String appVersion = '1.0';
 
 /// 无 BuildContext 场景（data 层/Notifer）取文案：直接 lookup 生成类

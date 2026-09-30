@@ -240,6 +240,7 @@ class RepoCard extends StatelessWidget {
   }
 }
 
+/// 拼子模块 chip：名 + 短 sha + 状态 + 分支。
 String _subChipLabel(CommitsState cs, GitSubmodule sub, AppLocalizations t) {
   final buf = StringBuffer(sub.displayName);
   if (sub.shortSha != null) buf.write('  ${sub.shortSha}');

@@ -53,6 +53,7 @@ class DioLogInterceptor extends Interceptor {
 class RetryInterceptor extends Interceptor {
   final Dio _dio;
   final Logger _log;
+  /// 最大重试次数。
   final int maxRetries;
   RetryInterceptor(this._dio, this._log, {this.maxRetries = 2});
 
@@ -76,8 +77,10 @@ class RetryInterceptor extends Interceptor {
       return handler.next(err);
     }
     final next = attempt + 1;
+    // 重试计数存 extra，防无限重试。
     req.extra['retry_attempt'] = next;
     _log.d('[network] retry $next/$maxRetries ${req.method} ${req.uri}');
+    // 递增退避，避免打爆服务端。
     await Future.delayed(Duration(milliseconds: 500 * next));
     try {
       final res = await _dio.fetch<List<dynamic>>(req);

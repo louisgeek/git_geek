@@ -28,6 +28,7 @@ class _CommitsPageState extends ConsumerState<CommitsPage> {
   @override
   void initState() {
     super.initState();
+    // 首帧后懒加载提交，避免在 initState 同步读写 provider。
     Future.microtask(
       () => ref.read(workspaceProvider.notifier).ensureCommitsLoaded(),
     );

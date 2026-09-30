@@ -50,7 +50,7 @@ final class TagsNotifierProvider
   }
 }
 
-String _$tagsNotifierHash() => r'73d4bc689d104671465f104e9e2b3a6ff8fa2f7e';
+String _$tagsNotifierHash() => r'6eea0618c14c38e572e6019b087b6314c7ce3ac3';
 
 /// Tags 子 Notifier（新架构）：唯一持有 local/remote tags + 查询/排序/过滤。
 /// 远程读取失败时读本地缓存兜底（[TagsState.remoteFromCache]）。

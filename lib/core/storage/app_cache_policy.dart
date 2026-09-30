@@ -8,16 +8,23 @@ enum AppCachePolicy {
   staleWhileRevalidate, // 先读缓存后更新：立即返回缓存，同时后台请求网络更新缓存
 }
 
+/// 缓存策略的读写语义判断。
 extension AppCachePolicyExtension on AppCachePolicy {
+  /// 是否读缓存。
+  /// 是否读缓存。
   bool get shouldReadCache =>
       this == AppCachePolicy.cacheFirst ||
           this == AppCachePolicy.cacheOnly ||
           this == AppCachePolicy.staleWhileRevalidate;
 
+  /// 是否写缓存。
+  /// 是否写缓存。
   bool get shouldWriteCache =>
       this != AppCachePolicy.cacheOnly && this != AppCachePolicy.networkOnly;
 
+  /// 是否请求网络。
   bool get shouldFetchNetwork => this != AppCachePolicy.cacheOnly;
 
+  /// 网络失败时是否回退读缓存。
   bool get shouldFallbackToCache => this == AppCachePolicy.networkFirst;
 }

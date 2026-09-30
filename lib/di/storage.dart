@@ -13,6 +13,7 @@ SharedPreferences appPrefs(Ref ref) => throw UnimplementedError(
       'appPrefsProvider must be overridden in main() with loaded instance',
     );
 
+/// Token 存储装配：基于安全存储，用于 GitHub/GitLab token。
 @Riverpod(keepAlive: true)
 TokenStore tokenStore(Ref ref) => TokenStore(const FlutterSecureStorage(
       aOptions: AndroidOptions(),
@@ -21,6 +22,7 @@ TokenStore tokenStore(Ref ref) => TokenStore(const FlutterSecureStorage(
       ),
     ));
 
+/// 离线数据库装配：remote tags 兜底缓存，退出时自动关闭。
 @Riverpod(keepAlive: true)
 AppDatabase appDatabase(Ref ref) {
   final db = AppDatabase();

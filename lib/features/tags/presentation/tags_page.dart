@@ -112,6 +112,7 @@ class _TagsPageState extends ConsumerState<TagsPage> {
     final ui = ref.watch(workspaceProvider);
     return DefaultTabController(
       length: 3,
+      // 页签下标钳制到 0~2，防越界。
       initialIndex: ui.selectedTagTab.clamp(0, 2),
       child: Builder(
         builder: (context) {

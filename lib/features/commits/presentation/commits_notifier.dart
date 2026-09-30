@@ -1,3 +1,4 @@
+import 'package:git_geek/core/result.dart';
 import 'package:git_geek/features/commits/data/commits_repository.dart';
 import 'package:git_geek/features/commits/di/providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
@@ -26,63 +27,69 @@ class CommitsNotifier extends _$CommitsNotifier {
   }) async {
     final tr = t(lang);
     state = state.copyWith(isLoadingCommits: true, commitError: null);
-    late final String dir;
-    try {
-      dir = await _repo.resolveEffectiveDir(repoPath, scope, lang);
-    } catch (e) {
+    final dirResult = await _repo.resolveEffectiveDir(repoPath, scope, lang);
+    final dir = dirResult.valueOrNull;
+    if (dir == null) {
       state = state.copyWith(
         isLoadingCommits: false,
         commitError:
-            '${tr.resolveFail}: ${_msg(e) ?? tr.unknownError}',
+            '${tr.resolveFail}: ${dirResult.errorOrNull ?? tr.unknownError}',
       );
       // 与老行为一致：resolve 失败也继续刷分支/子模块（各自再 resolve）。
       await loadBranches(repoPath: repoPath, scope: scope, lang: lang);
       await loadSubmodules(repoPath: repoPath, lang: lang);
       return;
     }
-    try {
-      final needsClone = await _repo.isRemoteAndNotCached(repoPath);
-      if (needsClone) {
-        state = state.copyWith(isCloning: true, cloningInfo: tr.cloningToCache);
-      }
-      final n = limit.clamp(1, 5000);
-      final trimmedBranch = branch.trim();
-      final results = await Future.wait([
-        _repo.fetchCommits(dir, trimmedBranch, n, lang),
-        _repo.fetchBranches(dir, lang),
-        _repo.fetchSubmodules(repoPath, lang),
-      ]);
-      final commits = results[0] as List<GitCommit>;
-      final branches = results[1] as List<GitBranch>;
-      final submodules = results[2] as List<GitSubmodule>;
-
-      final subs = await _loadSubmoduleExtras(
-          repoPath, submodules, trimmedRemote(remote), lang);
-
+    final needsClone = await _repo.isRemoteAndNotCached(repoPath);
+    if (needsClone) {
+      state = state.copyWith(isCloning: true, cloningInfo: tr.cloningToCache);
+    }
+    // 条数钳制到 1~5000，防过大拖慢解析。
+    final n = limit.clamp(1, 5000);
+    final trimmedBranch = branch.trim();
+    final results = await Future.wait([
+      _repo.fetchCommits(dir, trimmedBranch, n, lang),
+      _repo.fetchBranches(dir, lang),
+      _repo.fetchSubmodules(repoPath, lang),
+    ]);
+    final commitsResult = results[0] as Result<List<GitCommit>>;
+    final branchesResult = results[1] as Result<List<GitBranch>>;
+    final submodulesResult = results[2] as Result<List<GitSubmodule>>;
+    final commits = commitsResult.valueOrNull;
+    final branches = branchesResult.valueOrNull;
+    final submodules = submodulesResult.valueOrNull;
+    if (commits == null || branches == null || submodules == null) {
       state = state.copyWith(
         isLoadingCommits: false,
         isCloning: false,
         cloningInfo: '',
-        commits: commits,
-        branches: branches,
-        submodules: submodules,
-        submoduleBranches: subs.$2,
-        remoteUrl: subs.$1,
-        branch: trimmedBranch,
-        lastRefreshInfo: needsClone
-            ? tr.clonedCommitsOk(commits.length)
-            : tr.commitsOk(commits.length),
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoadingCommits: false,
-        isCloning: false,
-        cloningInfo: '',
-        commitError: _msg(e) ?? tr.unknownError,
+        commitError: commitsResult.errorOrNull ??
+            branchesResult.errorOrNull ??
+            submodulesResult.errorOrNull ??
+            tr.unknownError,
       );
       await loadBranches(repoPath: repoPath, scope: scope, lang: lang);
       await loadSubmodules(repoPath: repoPath, lang: lang);
+      return;
     }
+
+    final subs = await _loadSubmoduleExtras(
+        repoPath, submodules, trimmedRemote(remote), lang);
+
+    state = state.copyWith(
+      isLoadingCommits: false,
+      isCloning: false,
+      cloningInfo: '',
+      commits: commits,
+      branches: branches,
+      submodules: submodules,
+      submoduleBranches: subs.$2,
+      remoteUrl: subs.$1,
+      branch: trimmedBranch,
+      lastRefreshInfo: needsClone
+          ? tr.clonedCommitsOk(commits.length)
+          : tr.commitsOk(commits.length),
+    );
   }
 
   Future<void> loadBranches({
@@ -90,17 +97,25 @@ class CommitsNotifier extends _$CommitsNotifier {
     required String scope,
     required AppLang lang,
   }) async {
-    final tr = t(lang);
     state = state.copyWith(isLoadingBranches: true, branchError: null);
-    try {
-      final dir = await _repo.resolveEffectiveDir(repoPath, scope, lang);
-      final branches = await _repo.fetchBranches(dir, lang);
-      state = state.copyWith(isLoadingBranches: false, branches: branches);
-    } catch (e) {
-      state = state.copyWith(
-        isLoadingBranches: false,
-        branchError: _msg(e) ?? tr.unknownError,
-      );
+    switch (await _repo.resolveEffectiveDir(repoPath, scope, lang)) {
+      case Err(:final message):
+        state = state.copyWith(
+          isLoadingBranches: false,
+          branchError: message,
+        );
+        return;
+      case Ok(value: final dir):
+        switch (await _repo.fetchBranches(dir, lang)) {
+          case Ok(value: final branches):
+            state = state.copyWith(
+                isLoadingBranches: false, branches: branches);
+          case Err(:final message):
+            state = state.copyWith(
+              isLoadingBranches: false,
+              branchError: message,
+            );
+        }
     }
   }
 
@@ -109,23 +124,22 @@ class CommitsNotifier extends _$CommitsNotifier {
     required String repoPath,
     required AppLang lang,
   }) async {
-    final tr = t(lang);
     state = state.copyWith(
         isLoadingSubmodules: true, submoduleError: null);
-    try {
-      final subs = await _repo.fetchSubmodules(repoPath, lang);
-      final scope = state.scope;
-      final valid = scope.isEmpty || subs.any((e) => e.path == scope);
-      state = state.copyWith(
-        isLoadingSubmodules: false,
-        submodules: subs,
-        scope: valid ? scope : '',
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoadingSubmodules: false,
-        submoduleError: _msg(e) ?? tr.unknownError,
-      );
+    switch (await _repo.fetchSubmodules(repoPath, lang)) {
+      case Err(:final message):
+        state = state.copyWith(
+          isLoadingSubmodules: false,
+          submoduleError: message,
+        );
+      case Ok(value: final subs):
+        final scope = state.scope;
+        final valid = scope.isEmpty || subs.any((e) => e.path == scope);
+        state = state.copyWith(
+          isLoadingSubmodules: false,
+          submodules: subs,
+          scope: valid ? scope : '',
+        );
     }
     final extras = await _loadSubmoduleExtras(repoPath, state.submodules,
         trimmedRemote(state.remoteName), lang);
@@ -138,20 +152,17 @@ class CommitsNotifier extends _$CommitsNotifier {
     String remote,
     AppLang lang,
   ) async {
-    var remoteUrl = '';
-    try {
-      remoteUrl = await _repo.fetchRemoteUrl(repoPath, remote, lang);
-    } catch (_) {}
+    // 附加信息 best-effort：失败只留空，不影响主流程。
+    final remoteUrl =
+        (await _repo.fetchRemoteUrl(repoPath, remote, lang)).valueOrNull ?? '';
     final submoduleBranches = <String, String>{};
     if (subs.isNotEmpty) {
       final branchResults = await Future.wait(subs.map((sub) async {
-        try {
-          final b =
-              await _repo.fetchSubmoduleBranch(repoPath, sub.path, lang);
-          return b.trim().isNotEmpty ? MapEntry(sub.path, b.trim()) : null;
-        } catch (_) {
-          return null;
-        }
+        final b = (await _repo.fetchSubmoduleBranch(repoPath, sub.path, lang))
+            .valueOrNull;
+        return b != null && b.trim().isNotEmpty
+            ? MapEntry(sub.path, b.trim())
+            : null;
       }));
       for (final e in branchResults) {
         if (e != null) submoduleBranches[e.key] = e.value;
@@ -196,6 +207,7 @@ class CommitsNotifier extends _$CommitsNotifier {
   void setBranch(String v) => state = state.copyWith(branch: v);
   void setCommitQuery(String v) => state = state.copyWith(commitQuery: v);
   void setCommitLimit(String v) => state = state.copyWith(
+      // 仅保留数字并截前 4 位，防超长输入。
       commitLimit: v.split('').where(_isDigit).take(4).join());
   void setScope(String v) => state = state.copyWith(scope: v);
   void setRemoteName(String v) => state = state.copyWith(remoteName: v);
@@ -204,18 +216,14 @@ class CommitsNotifier extends _$CommitsNotifier {
 
   CommitsRepository get _repo => ref.read(commitsRepositoryProvider);
 
+  /// 去空 remote 名：空回退 `origin`。
   String trimmedRemote(String remote) =>
       remote.trim().isEmpty ? 'origin' : remote.trim();
 
   static bool _isDigit(String c) {
     if (c.isEmpty) return false;
+    // ASCII 码 48-57 即字符 '0'-'9'。
     final u = c.codeUnitAt(0);
     return u >= 48 && u <= 57;
-  }
-
-  String? _msg(Object e) {
-    final s = e.toString();
-    const prefix = 'Exception: ';
-    return s.startsWith(prefix) ? s.substring(prefix.length) : s;
   }
 }

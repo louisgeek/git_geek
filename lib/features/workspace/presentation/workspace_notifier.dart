@@ -71,6 +71,7 @@ class WorkspaceNotifier extends _$WorkspaceNotifier {
 
   /// tags 内页签（0 对比总览/1 本地/2 远端）；tags 页与 commits 页的切换走路由。
   void setTagTab(int i) {
+    // 页签下标钳制到 0~2，防越界。
     _emit(state.copyWith(selectedTagTab: i.clamp(0, 2)));
   }
 
@@ -169,26 +170,21 @@ class WorkspaceNotifier extends _$WorkspaceNotifier {
   }
 
   void loadSample() {
+    // 示例数据直接按来源命名空间构造（本地 refs/tags vs 远端 ls-remote 结果）。
     const local = [
-      GitTag(name: 'v1.0.0', commitSha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', isAnnotated: true, tagger: 'louis', tagDate: '2026-09-01', tagMessage: '首个正式版', commitAuthor: 'louis', commitDate: '2026-09-01', commitSubject: 'release: 首个正式版', source: TagSource.sample),
-      GitTag(name: 'v1.1.0', commitSha: 'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3', isAnnotated: false, commitAuthor: 'louis', commitDate: '2026-09-05', commitSubject: 'feat: 新增深色模式', source: TagSource.sample),
-      GitTag(name: 'v1.2.0', commitSha: 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', isAnnotated: true, tagger: 'louis', tagDate: '2026-09-10', tagMessage: '修复闪退热修复版', commitAuthor: 'louis', commitDate: '2026-09-10', commitSubject: 'fix: 修复启动闪退', commitBody: 'issue #123\n回归测试通过', source: TagSource.sample),
-      GitTag(name: 'v2.0.0-rc.1', commitSha: 'd4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5', isAnnotated: false, commitAuthor: 'louis', commitDate: '2026-09-12', commitSubject: 'chore: 2.0 预发布', source: TagSource.sample),
-      GitTag(name: 'v2.0.0', source: TagSource.sample),
+      GitTag(name: 'v1.0.0', commitSha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', isAnnotated: true, tagger: 'louis', tagDate: '2026-09-01', tagMessage: '首个正式版', commitAuthor: 'louis', commitDate: '2026-09-01', commitSubject: 'release: 首个正式版'),
+      GitTag(name: 'v1.1.0', commitSha: 'b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3', isAnnotated: false, commitAuthor: 'louis', commitDate: '2026-09-05', commitSubject: 'feat: 新增深色模式'),
+      GitTag(name: 'v1.2.0', commitSha: 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', isAnnotated: true, tagger: 'louis', tagDate: '2026-09-10', tagMessage: '修复闪退热修复版', commitAuthor: 'louis', commitDate: '2026-09-10', commitSubject: 'fix: 修复启动闪退', commitBody: 'issue #123\n回归测试通过'),
+      GitTag(name: 'v2.0.0-rc.1', commitSha: 'd4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5', isAnnotated: false, commitAuthor: 'louis', commitDate: '2026-09-12', commitSubject: 'chore: 2.0 预发布'),
+      GitTag(name: 'v2.0.0'),
     ];
     const remote = [
-      GitTag(name: 'v1.0.0', commitSha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', commitAuthor: 'louis', commitDate: '2026-09-01', commitSubject: 'release: 首个正式版', source: TagSource.sample),
-      GitTag(name: 'v1.1.0', commitSha: 'ffffffffffffffffffffffffffffffffffffffff', commitAuthor: 'louis', commitDate: '2026-09-06', commitSubject: 'revert: 回滚深色模式', source: TagSource.sample),
-      GitTag(name: 'v1.2.0', commitSha: 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', commitAuthor: 'louis', commitDate: '2026-09-10', commitSubject: 'fix: 修复启动闪退', source: TagSource.sample),
-      GitTag(name: 'v1.3.0', commitSha: 'e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6', commitAuthor: 'louis', commitDate: '2026-09-14', commitSubject: 'feat: 新增导出功能', source: TagSource.sample),
+      GitTag(name: 'v1.0.0', commitSha: 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2', commitAuthor: 'louis', commitDate: '2026-09-01', commitSubject: 'release: 首个正式版', source: TagSource.remote),
+      GitTag(name: 'v1.1.0', commitSha: 'ffffffffffffffffffffffffffffffffffffffff', commitAuthor: 'louis', commitDate: '2026-09-06', commitSubject: 'revert: 回滚深色模式', source: TagSource.remote),
+      GitTag(name: 'v1.2.0', commitSha: 'c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4', commitAuthor: 'louis', commitDate: '2026-09-10', commitSubject: 'fix: 修复启动闪退', source: TagSource.remote),
+      GitTag(name: 'v1.3.0', commitSha: 'e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6', commitAuthor: 'louis', commitDate: '2026-09-14', commitSubject: 'feat: 新增导出功能', source: TagSource.remote),
     ];
-    ref
-        .read(tagsProvider.notifier)
-        .setSample(
-          local.map((e) => e.copyWith(source: TagSource.local)).toList(),
-          remote.map((e) => e.copyWith(source: TagSource.remote)).toList(),
-          state.lang,
-        );
+    ref.read(tagsProvider.notifier).setSample(local, remote, state.lang);
     ref.read(commitsProvider.notifier).setSample(
       const [
         GitCommit(

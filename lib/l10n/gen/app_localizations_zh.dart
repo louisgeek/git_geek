@@ -16,16 +16,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get subtitleNoGit => '当前平台不支持本地 git，请使用桌面端';
 
   @override
-  String get langZh => '中文';
-
-  @override
-  String get langEn => 'English';
-
-  @override
   String get about => '关于';
 
   @override
-  String get aboutTitle => 'About GitGeek en';
+  String get aboutTitle => '关于 GitGeek';
 
   @override
   String get aboutVersionLabel => '版本';
@@ -320,11 +314,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String clonedTagsOk(int n) {
-    return '已克隆并刷新 $n 个';
-  }
-
-  @override
   String remoteTagsOk(int n) {
     return '远程刷新成功 $n 个';
   }
@@ -378,12 +367,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dirNotExist => '目录不存在';
 
   @override
-  String get gitNotInstalled => '无法执行 git, 请确认已安装并在 PATH 中';
-
-  @override
-  String get gitRunFail => '无法执行 git';
-
-  @override
   String get updatingCache => '更新缓存仓库…';
 
   @override
@@ -427,13 +410,10 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get subtitleNoGit => '目前平台不支援本地 git，請使用桌面端';
 
   @override
-  String get langZh => '中文';
-
-  @override
-  String get langEn => 'English';
-
-  @override
   String get about => '關於';
+
+  @override
+  String get aboutTitle => '關於 GitGeek';
 
   @override
   String get aboutVersionLabel => '版本';
@@ -728,11 +708,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   }
 
   @override
-  String clonedTagsOk(int n) {
-    return '已複製並重新整理 $n 個';
-  }
-
-  @override
   String remoteTagsOk(int n) {
     return '遠端重新整理成功 $n 個';
   }
@@ -786,12 +761,6 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get dirNotExist => '目錄不存在';
 
   @override
-  String get gitNotInstalled => '無法執行 git, 請確認已安裝並在 PATH 中';
-
-  @override
-  String get gitRunFail => '無法執行 git';
-
-  @override
   String get updatingCache => '更新快取倉庫…';
 
   @override
@@ -835,13 +804,10 @@ class AppLocalizationsZhHantHk extends AppLocalizationsZh {
   String get subtitleNoGit => '目前平台不支援本地 git，請使用桌面端';
 
   @override
-  String get langZh => '中文';
-
-  @override
-  String get langEn => 'English';
-
-  @override
   String get about => '關於';
+
+  @override
+  String get aboutTitle => '關於 GitGeek';
 
   @override
   String get aboutVersionLabel => '版本';
@@ -1136,11 +1102,6 @@ class AppLocalizationsZhHantHk extends AppLocalizationsZh {
   }
 
   @override
-  String clonedTagsOk(int n) {
-    return '已複製並重新載入 $n 個';
-  }
-
-  @override
   String remoteTagsOk(int n) {
     return '遠端重新載入成功 $n 個';
   }
@@ -1192,12 +1153,6 @@ class AppLocalizationsZhHantHk extends AppLocalizationsZh {
 
   @override
   String get dirNotExist => '目錄不存在';
-
-  @override
-  String get gitNotInstalled => '無法執行 git, 請確認已安裝並在 PATH 中';
-
-  @override
-  String get gitRunFail => '無法執行 git';
 
   @override
   String get updatingCache => '更新快取倉庫…';

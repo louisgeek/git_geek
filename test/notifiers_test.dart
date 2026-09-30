@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:git_geek/core/result.dart';
 import 'package:git_geek/core/storage/database.dart';
 import 'package:git_geek/data/git_commit_source.dart';
 import 'package:git_geek/data/git_runner.dart';
@@ -22,31 +23,32 @@ class FakeTagsRepository extends TagsRepository {
       : super(AppDatabase.memory(), Logger(), GitTagDataSource(gitRunner));
 
   @override
-  Future<String> resolveDir(
+  Future<Result<String>> resolveDir(
           String repoPath, String scope, AppLang lang) async =>
-      '.';
+      const Result.ok('.');
 
   @override
-  Future<List<GitTag>> fetchLocalTags(String dir, AppLang lang) async =>
-      const [
+  Future<Result<List<GitTag>>> fetchLocalTags(
+          String dir, AppLang lang) async =>
+      const Result.ok([
         GitTag(name: 'v1.0.0', commitSha: 'aaa'),
         GitTag(name: 'v2.0.0'),
-      ];
+      ]);
 
   @override
-  Future<List<GitTag>> fetchRemoteTags(
+  Future<Result<List<GitTag>>> fetchRemoteTags(
           String dir, String remote, AppLang lang) async =>
-      const [
+      const Result.ok([
         GitTag(name: 'v1.0.0', commitSha: 'aaa', source: TagSource.remote),
-      ];
+      ]);
 }
 
 /// 远程读取失败、缓存有数据：应走兜底并置 remoteFromCache。
 class FailingRemoteTagsRepository extends FakeTagsRepository {
   @override
-  Future<List<GitTag>> fetchRemoteTags(
+  Future<Result<List<GitTag>>> fetchRemoteTags(
           String dir, String remote, AppLang lang) async =>
-      throw Exception('network down');
+      const Result.err('network down');
 
   @override
   Future<List<GitTag>> cachedRemoteTags(
@@ -64,17 +66,17 @@ class FakeCommitsRepository extends CommitsRepository {
       : super(Logger(), GitCommitDataSource(gitRunner));
 
   @override
-  Future<String> resolveEffectiveDir(
+  Future<Result<String>> resolveEffectiveDir(
           String repoPath, String scope, AppLang lang) async =>
-      '.';
+      const Result.ok('.');
 
   @override
   Future<bool> isRemoteAndNotCached(String repoPath) async => false;
 
   @override
-  Future<List<GitCommit>> fetchCommits(
+  Future<Result<List<GitCommit>>> fetchCommits(
           String dir, String branch, int limit, AppLang lang) async =>
-      const [
+      const Result.ok([
         GitCommit(
           sha: 'newsha',
           parents: ['basesha'],
@@ -89,26 +91,27 @@ class FakeCommitsRepository extends CommitsRepository {
           author: 'louis',
           subject: 'fix: crash on start',
         ),
-      ];
+      ]);
 
   @override
-  Future<List<GitBranch>> fetchBranches(String dir, AppLang lang) async =>
-      const [GitBranch(name: 'main', isCurrent: true)];
-
-  @override
-  Future<List<GitSubmodule>> fetchSubmodules(
+  Future<Result<List<GitBranch>>> fetchBranches(
           String dir, AppLang lang) async =>
-      const [GitSubmodule(path: 'pkg', sha: 's1')];
+      const Result.ok([GitBranch(name: 'main', isCurrent: true)]);
 
   @override
-  Future<String> fetchRemoteUrl(
+  Future<Result<List<GitSubmodule>>> fetchSubmodules(
+          String dir, AppLang lang) async =>
+      const Result.ok([GitSubmodule(path: 'pkg', sha: 's1')]);
+
+  @override
+  Future<Result<String>> fetchRemoteUrl(
           String dir, String remote, AppLang lang) async =>
-      'https://example.com/r.git';
+      const Result.ok('https://example.com/r.git');
 
   @override
-  Future<String> fetchSubmoduleBranch(
+  Future<Result<String>> fetchSubmoduleBranch(
           String dir, String subPath, AppLang lang) async =>
-      'main';
+      const Result.ok('main');
 }
 
 void main() {

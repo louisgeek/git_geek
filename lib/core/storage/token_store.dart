@@ -9,13 +9,23 @@ class TokenStore {
   final FlutterSecureStorage _storage;
   TokenStore(this._storage);
 
+  /// 读 GitHub token。
   Future<String?> readGithubToken() => _storage.read(key: _kGithubToken);
+
+  /// 存 GitHub token。
   Future<void> saveGithubToken(String v) =>
       _storage.write(key: _kGithubToken, value: v);
+
+  /// 删 GitHub token。
   Future<void> deleteGithubToken() => _storage.delete(key: _kGithubToken);
 
+  /// 读 GitLab token。
   Future<String?> readGitlabToken() => _storage.read(key: _kGitlabToken);
+
+  /// 存 GitLab token。
   Future<void> saveGitlabToken(String v) =>
       _storage.write(key: _kGitlabToken, value: v);
+
+  /// 删 GitLab token。
   Future<void> deleteGitlabToken() => _storage.delete(key: _kGitlabToken);
 }

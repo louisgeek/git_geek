@@ -18,16 +18,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Local git is not supported on this platform; please use the desktop app';
 
   @override
-  String get langZh => '中文';
-
-  @override
-  String get langEn => 'English';
-
-  @override
   String get about => 'About';
 
   @override
-  String get aboutTitle => 'About GitGeek en';
+  String get aboutTitle => 'About GitGeek';
 
   @override
   String get aboutVersionLabel => 'Version';
@@ -326,11 +320,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String clonedTagsOk(int n) {
-    return 'Cloned & refreshed: $n tags';
-  }
-
-  @override
   String remoteTagsOk(int n) {
     return 'Remote refresh: $n tags';
   }
@@ -382,13 +371,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dirNotExist => 'Directory does not exist';
-
-  @override
-  String get gitNotInstalled =>
-      'Cannot run git; make sure it is installed and on PATH';
-
-  @override
-  String get gitRunFail => 'Cannot run git';
 
   @override
   String get updatingCache => 'Updating cached repo…';

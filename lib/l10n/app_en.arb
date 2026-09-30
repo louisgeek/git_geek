@@ -2,10 +2,8 @@
   "@@locale": "en",
   "subtitleDesktop": "Desktop: local dirs or remote URLs (https/ssh) with auto-clone cache",
   "subtitleNoGit": "Local git is not supported on this platform; please use the desktop app",
-  "langZh": "中文",
-  "langEn": "English",
   "about": "About",
-  "aboutTitle": "About GitGeek en",
+  "aboutTitle": "About GitGeek",
   "aboutVersionLabel": "Version",
   "aboutCopyright": "© 2026 GitGeek",
   "close": "Close",
@@ -128,14 +126,6 @@
       }
     }
   },
-  "clonedTagsOk": "Cloned & refreshed: {n} tags",
-  "@clonedTagsOk": {
-    "placeholders": {
-      "n": {
-        "type": "int"
-      }
-    }
-  },
   "remoteTagsOk": "Remote refresh: {n} tags",
   "@remoteTagsOk": {
     "placeholders": {
@@ -179,8 +169,6 @@
   "submoduleBranchFail": "Failed to read submodule branch",
   "dirName": "dir",
   "dirNotExist": "Directory does not exist",
-  "gitNotInstalled": "Cannot run git; make sure it is installed and on PATH",
-  "gitRunFail": "Cannot run git",
   "updatingCache": "Updating cached repo…",
   "updateStaleCache": "Update failed, using stale cache",
   "cloningCache": "Cloning to cache…",

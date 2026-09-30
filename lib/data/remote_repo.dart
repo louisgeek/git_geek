@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 
 /// 同一 URL 的串行锁
 class _AsyncLock {
+  // 链式尾巴：后任务排在前任务完成后执行，实现同 URL 串行。
   Future<void> _tail = Future.value();
   Future<T> run<T>(Future<T> Function() fn) {
     final completer = Completer<T>();
@@ -57,7 +58,9 @@ class RemoteRepoResolver {
     }
   }
 
+  /// 从 URL 推断仓库名：兼容 scp 与 http 形式并去 `.git` 后缀。
   static String repoNameFromUrl(String url) {
+    // 去尾斜杠，避免 last 为空。
     var t = url.trim().replaceAll(RegExp(r'/+$'), '');
     if (GitUrlDetector.isRemoteUrl(t) && !t.contains('://') && t.contains(':')) {
       t = t.substring(t.indexOf(':') + 1);
@@ -71,10 +74,13 @@ class RemoteRepoResolver {
     return name.isEmpty ? 'repo' : name;
   }
 
+  /// 按 URL 计算本地缓存目录：名 + sha1 前 10 位，防重名冲突。
   static Future<Directory> cacheDirFor(String url) async {
     final root = await _cacheRoot();
+    // 非文件名字符统一替换为下划线。
     final name =
         repoNameFromUrl(url).replaceAll(RegExp(r'[^\w.\-]'), '_');
+    // sha1 取前 10 位作短哈希，区分同名不同 URL。
     final short = sha1.convert(utf8.encode(url.trim())).toString().substring(0, 10);
     return Directory('${root.path}/$name-$short');
   }
@@ -89,6 +95,7 @@ class RemoteRepoResolver {
     }
   }
 
+  /// 是否为可用仓库目录：`rev-parse --git-dir` 成功即视为可用。
   static Future<bool> isUsableRepoDir(Directory dir) async {
     if (!await dir.exists()) return false;
     final r = await gitRunner.run(dir.path, ['rev-parse', '--git-dir']);
@@ -136,6 +143,7 @@ class RemoteRepoResolver {
     ], onProgress: onProgress);
     if (r.ok) return;
     await _deleteDirRobust(target, lang);
+    // 部分托管不支持 filter，失败回退普通 clone。
     onProgress?.call(t(lang).filterFallback);
     r = await gitRunner.run(null, [
       'clone',
@@ -156,6 +164,7 @@ class RemoteRepoResolver {
     await gitRunner.run(repoDir.path, ['merge', '--ff-only', 'FETCH_HEAD']);
   }
 
+  /// 解析仓库路径：本地目录直接返回，远程 URL 走缓存克隆/增量更新。
   static Future<Directory> resolve(
     String repoPath,
     AppLang lang, {
@@ -208,6 +217,7 @@ class RemoteRepoResolver {
     });
   }
 
+  /// 是否已有本地缓存：裸仓看 HEAD，普通仓看 .git。
   static Future<bool> isCached(String repoPath) async {
     final trimmed = repoPath.trim();
     if (!GitUrlDetector.isRemoteUrl(trimmed)) return false;
@@ -226,6 +236,7 @@ class RemoteRepoResolver {
   static Future<String> resolveEffectiveDir(
       String repoPath, String scope, AppLang lang) async {
     final base = repoPath.trim().isEmpty ? '.' : repoPath.trim();
+    // 去 scope 前导斜杠，避免拼接出绝对路径。
     final s = scope.trim().replaceAll(RegExp(r'^[/\\]+'), '');
     if (!GitUrlDetector.isRemoteUrl(base)) {
       if (s.isEmpty) return base;
