@@ -16,10 +16,13 @@ class GitResult {
 /// 平台相关的 git 执行器：桌面端用 dart:io Process，其它平台返回友好错误。
 /// 用条件导出实现，[git_runner.dart] 统一对外。
 abstract class GitRunner {
-  /// 在 [workDir] 执行 `git args`，返回执行结果。
-  Future<GitResult> run(String? workDir, List<String> args,
-      {void Function(String line)? onProgress});
-
   /// 是否支持本地 git 执行。
   bool get supportsNativeGit;
+
+  /// 在 [workDir] 执行 `git args`，返回执行结果。
+  Future<GitResult> run(
+    String? workDir,
+    List<String> args, {
+    void Function(String line)? onProgress,
+  });
 }
