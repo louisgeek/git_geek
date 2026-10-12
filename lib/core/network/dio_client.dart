@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 /// 只对 github api 自动带 token，避免污染其他 host。
 class AuthInterceptor extends Interceptor {
   final TokenStore _tokenStore;
+
   AuthInterceptor(this._tokenStore);
 
   @override
@@ -25,6 +26,7 @@ class AuthInterceptor extends Interceptor {
 /// 轻量请求日志：只打 method/url/status，不打 body（避免泄漏 token 与刷屏）。
 class DioLogInterceptor extends Interceptor {
   final Logger _log;
+
   DioLogInterceptor(this._log);
 
   @override
@@ -53,8 +55,10 @@ class DioLogInterceptor extends Interceptor {
 class RetryInterceptor extends Interceptor {
   final Dio _dio;
   final Logger _log;
+
   /// 最大重试次数。
   final int maxRetries;
+
   RetryInterceptor(this._dio, this._log, {this.maxRetries = 2});
 
   @override
@@ -68,7 +72,8 @@ class RetryInterceptor extends Interceptor {
     final status = err.response?.statusCode;
     final retryableStatus =
         status == 429 || (status != null && status >= 500 && status < 600);
-    final retryableNet = status == null &&
+    final retryableNet =
+        status == null &&
         (err.type == DioExceptionType.connectionTimeout ||
             err.type == DioExceptionType.receiveTimeout ||
             err.type == DioExceptionType.connectionError);
@@ -95,15 +100,17 @@ class RetryInterceptor extends Interceptor {
 class GithubApiException implements Exception {
   final int? statusCode;
   final String message;
+
   const GithubApiException(this.message, {this.statusCode});
+
   @override
-  String toString() =>
-      'GithubApiException($statusCode): $message';
+  String toString() => 'GithubApiException($statusCode): $message';
 }
 
 /// GitHub REST 最小封装：按需取 remote tags，避免每次都 `git ls-remote`。
 class GithubApi {
   final Dio _dio;
+
   GithubApi(this._dio);
 
   /// `GET /repos/{owner}/{repo}/tags`，调用方自己解析 owner/repo。
