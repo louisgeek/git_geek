@@ -3,8 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:git_geek/core/result.dart';
 import 'package:git_geek/core/storage/database.dart';
 import 'package:git_geek/data/git_commit_source.dart';
-import 'package:git_geek/data/git_runner.dart';
+import 'package:git_geek/data/git_runner_stub.dart';
 import 'package:git_geek/data/git_tag_source.dart';
+import 'package:git_geek/data/remote_repo.dart';
 import 'package:git_geek/features/commits/data/commits_repository.dart';
 import 'package:git_geek/features/commits/di/providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
@@ -18,9 +19,13 @@ import 'package:git_geek/models/git_tag.dart';
 import 'package:logger/logger.dart';
 
 // 不碰真实 git：fake 仓储直接返回固定数据。
+final _fakeRunner = NoopGitRunner();
+
 class FakeTagsRepository extends TagsRepository {
   FakeTagsRepository()
-      : super(AppDatabase.memory(), Logger(), GitTagDataSource(gitRunner));
+      : super(AppDatabase.memory(), Logger(),
+            GitTagDataSource(_fakeRunner, RemoteRepoResolver(_fakeRunner)),
+            RemoteRepoResolver(_fakeRunner));
 
   @override
   Future<Result<String>> resolveDir(
@@ -63,7 +68,10 @@ class FailingRemoteTagsRepository extends FakeTagsRepository {
 
 class FakeCommitsRepository extends CommitsRepository {
   FakeCommitsRepository()
-      : super(Logger(), GitCommitDataSource(gitRunner));
+      : super(
+            GitCommitDataSource(_fakeRunner, RemoteRepoResolver(_fakeRunner)),
+            Logger(),
+            RemoteRepoResolver(_fakeRunner));
 
   @override
   Future<Result<String>> resolveEffectiveDir(

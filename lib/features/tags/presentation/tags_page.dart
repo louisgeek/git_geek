@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:git_geek/l10n/gen/app_localizations.dart';
 import 'package:git_geek/core/widgets/clipboard.dart';
-import 'package:git_geek/data/git_runner.dart';
+import 'package:git_geek/di/git.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
@@ -48,24 +48,26 @@ class _TagsPageState extends ConsumerState<TagsPage> {
       body: SafeArea(
         child: Column(
           children: [
+            // 头部提为固定区域，与 /commits 页保持一致（切页时标题不跳动）。
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: AppTitle(
+                lang: ui.lang,
+                t: t,
+                onLangSelected: vm.setLang,
+              ),
+            ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                 children: [
-                  const SizedBox(height: 8),
-                  AppTitle(
-                    lang: ui.lang,
-                    t: t,
-                    onLangSelected: vm.setLang,
-                  ),
-                  const SizedBox(height: 12),
                   RepoCard(
                     ui: ui,
                     tags: tags,
                     cs: cs,
                     t: t,
                     vm: vm,
-                    onCopy: (v) => copyAndNotify(context, v, t),
+                    onCopy: (v) => copyAndNotify(context, v, t.copied),
                   ),
                   const SizedBox(height: 12),
                   TagStats(tags: tags, t: t),
@@ -90,7 +92,8 @@ class _TagsPageState extends ConsumerState<TagsPage> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  if (!supportsNativeGit) UnsupportedCard(t: t),
+                  if (!ref.watch(supportsNativeGitProvider))
+                    UnsupportedCard(t: t),
                   const SizedBox(height: 16),
                 ],
               ),

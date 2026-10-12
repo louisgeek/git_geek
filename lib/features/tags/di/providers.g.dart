@@ -52,4 +52,4 @@ final class TagsRepositoryProvider
   }
 }
 
-String _$tagsRepositoryHash() => r'decde0c9ea7ba6c503fce683a4b6db8a6a5454f4';
+String _$tagsRepositoryHash() => r'76c98c4b6b0c1d28e9cfdb0cd945fe8d45a61831';

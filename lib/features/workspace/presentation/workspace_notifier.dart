@@ -1,6 +1,6 @@
 import 'package:git_geek/core/storage/app_prefs.dart';
-import 'package:git_geek/data/git_runner.dart';
 import 'package:git_geek/data/remote_repo.dart';
+import 'package:git_geek/di/git.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_state.dart';
@@ -77,7 +77,8 @@ class WorkspaceNotifier extends _$WorkspaceNotifier {
 
   /// 进入 commits 页时调一次：无数据才刷（原 setTab 切到 tab 3 的懒加载）。
   void ensureCommitsLoaded() {
-    if (supportsNativeGit && ref.read(commitsProvider).commits.isEmpty) {
+    if (ref.read(supportsNativeGitProvider) &&
+        ref.read(commitsProvider).commits.isEmpty) {
       refreshCommits();
     }
   }
@@ -112,15 +113,25 @@ class WorkspaceNotifier extends _$WorkspaceNotifier {
 
   Future<void> refreshCommits() {
     final cs = ref.read(commitsProvider);
-    return ref.read(commitsProvider.notifier).load(
+    final notifier = ref.read(commitsProvider.notifier);
+    // 参照面板的子库记录：排在主链之后拉（需先拿到 submodules 列表），
+    // 且不阻塞主链返回，失败已在 Repository 层记日志。
+    return notifier.load(
+      repoPath: state.repoPath,
+      scope: state.selectedScope,
+      branch: cs.branch,
+      limit: int.tryParse(cs.commitLimit) ?? 100,
+      remote: state.remote,
+      lang: state.lang,
+    ).then((_) => notifier.loadSubmoduleLogs(
           repoPath: state.repoPath,
-          scope: state.selectedScope,
-          branch: cs.branch,
-          limit: int.tryParse(cs.commitLimit) ?? 100,
-          remote: state.remote,
+          limit: _subLogLimit,
           lang: state.lang,
-        );
+        ));
   }
+
+  /// 参照面板每个子库展示的记录条数。
+  static const int _subLogLimit = 10;
 
   void refreshBranches() =>
       ref.read(commitsProvider.notifier).loadBranches(

@@ -1,10 +1,18 @@
-import 'package:git_geek/di/storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'app_prefs.g.dart';
 
+/// SharedPreferences 实例：main() 里预加载后 override，业务只读 provider。
+/// 与消费者 SettingsRepository 同文件，避免 core→di 反向引用；
+/// 普通偏好放这里；token/密码放 TokenStore；离线表结构数据放 Sembast。
+@Riverpod(keepAlive: true)
+SharedPreferences appPrefs(Ref ref) => throw UnimplementedError(
+      'appPrefsProvider must be overridden in main() with loaded instance',
+    );
+
 /// 强类型偏好读写：key 与旧 GitTagSettings 保持一致，保证老数据可迁移。
-/// 有状态 Notifier，留在 core；无状态的 appPrefsProvider 装配见 di/storage.dart。
+/// 有状态 Notifier，留在 core。
 @Riverpod(keepAlive: true)
 class SettingsRepository extends _$SettingsRepository {
   static const kRepoPath = 'gitgeek.repoPath';

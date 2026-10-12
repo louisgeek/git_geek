@@ -15,14 +15,20 @@ const String _commitFmt =
 /// 唯一的静态方法是纯函数 [applyMergeDrift]（无 IO，可单测）。
 class GitCommitDataSource {
   final GitRunner _runner;
-  GitCommitDataSource(this._runner);
+  final RemoteRepoResolver _resolver;
+
+  GitCommitDataSource(this._runner, this._resolver);
 
   /// 是否支持本地 git。
   bool get supportsNativeGit => _runner.supportsNativeGit;
 
   /// 拉取提交列表：topo 排序 + raw 子模块变更，再补详情与漂移检测。
   Future<Result<List<GitCommit>>> fetchCommits(
-      String repoPath, String branch, int limit, AppLang lang) async {
+    String repoPath,
+    String branch,
+    int limit,
+    AppLang lang,
+  ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
       return Result.err(tr.platformUnsupported('Web'));
@@ -48,8 +54,9 @@ class GitCommitDataSource {
       final withSubjects = await enrichSubmoduleChanges(dir, parsed);
       final withDrift = await detectMergeSubmoduleDrift(dir, withSubjects);
       final withDriftEnriched = await enrichSubmoduleChanges(dir, withDrift);
-      return Result.ok(await fillRecordGaps(
-          dir, attachSubmoduleRecordInfo(withDriftEnriched)));
+      return Result.ok(
+        await fillRecordGaps(dir, attachSubmoduleRecordInfo(withDriftEnriched)),
+      );
     } catch (e, st) {
       return Result.err(
         '${tr.commitsFail}: ${cleanError(e)} (${tr.dirName}=${repoPath.trim().isEmpty ? '.' : repoPath.trim()})',
@@ -61,26 +68,36 @@ class GitCommitDataSource {
 
   /// 拉取分支列表。
   Future<Result<List<GitBranch>>> fetchBranches(
-      String repoPath, AppLang lang) async {
+    String repoPath,
+    AppLang lang,
+  ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
       return Result.err(tr.platformUnsupported('Web'));
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
-      final out = await _runner
-          .run(dir, ['branch', '-a', '--format=%(HEAD) %(refname:short)']);
+      final out = await _runner.run(dir, [
+        'branch',
+        '-a',
+        '--format=%(HEAD) %(refname:short)',
+      ]);
       if (!out.ok) throw Exception(out.stderr);
       return Result.ok(GitLogParser.parseBranches(out.stdout));
     } catch (e, st) {
-      return Result.err('${tr.branchesFail}: ${cleanError(e)}',
-          cause: e, stackTrace: st);
+      return Result.err(
+        '${tr.branchesFail}: ${cleanError(e)}',
+        cause: e,
+        stackTrace: st,
+      );
     }
   }
 
   /// 拉取子模块现状。
   Future<Result<List<GitSubmodule>>> fetchSubmodules(
-      String repoPath, AppLang lang) async {
+    String repoPath,
+    AppLang lang,
+  ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
       return Result.err(tr.platformUnsupported('Web'));
@@ -91,49 +108,100 @@ class GitCommitDataSource {
       if (!out.ok) throw Exception(out.stderr);
       return Result.ok(GitSubmoduleParser.parse(out.stdout));
     } catch (e, st) {
-      return Result.err('${tr.submodulesFail}: ${cleanError(e)}',
-          cause: e, stackTrace: st);
+      return Result.err(
+        '${tr.submodulesFail}: ${cleanError(e)}',
+        cause: e,
+        stackTrace: st,
+      );
     }
   }
 
   /// 拉取远端地址。
   Future<Result<String>> fetchRemoteUrl(
-      String repoPath, String remote, AppLang lang) async {
+    String repoPath,
+    String remote,
+    AppLang lang,
+  ) async {
     final tr = t(lang);
     if (!supportsNativeGit) return Result.err(tr.platformUnsupported('Web'));
     try {
       final dir = await _resolveRepo(repoPath, lang);
-      final out = await _runner.run(
-          dir, ['remote', 'get-url', remote.trim().isEmpty ? 'origin' : remote.trim()]);
+      final out = await _runner.run(dir, [
+        'remote',
+        'get-url',
+        remote.trim().isEmpty ? 'origin' : remote.trim(),
+      ]);
       if (!out.ok) throw Exception(out.stderr);
       return Result.ok(out.stdout.trim());
     } catch (e, st) {
-      return Result.err('${tr.remoteUrlFail}: ${cleanError(e)}',
-          cause: e, stackTrace: st);
+      return Result.err(
+        '${tr.remoteUrlFail}: ${cleanError(e)}',
+        cause: e,
+        stackTrace: st,
+      );
     }
   }
 
   /// 拉取子模块当前分支：进子模块目录查当前分支。
   Future<Result<String>> fetchSubmoduleBranch(
-      String repoPath, String subPath, AppLang lang) async {
+    String repoPath,
+    String subPath,
+    AppLang lang,
+  ) async {
     final tr = t(lang);
     if (!supportsNativeGit) return Result.err(tr.platformUnsupported('Web'));
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final subDir = '$dir/$subPath';
-      final out =
-          await _runner.run(subDir, ['branch', '--show-current']);
+      final out = await _runner.run(subDir, ['branch', '--show-current']);
       if (!out.ok) throw Exception(out.stderr);
       return Result.ok(out.stdout.trim());
     } catch (e, st) {
-      return Result.err('${tr.submoduleBranchFail}: ${cleanError(e)}',
-          cause: e, stackTrace: st);
+      return Result.err(
+        '${tr.submoduleBranchFail}: ${cleanError(e)}',
+        cause: e,
+        stackTrace: st,
+      );
+    }
+  }
+
+  /// 拉取子模块最近若干条提交（参照面板用）。
+  /// 只跑一条 git log，不做 enrich/漂移检测，刻意保持轻量。
+  Future<Result<List<GitCommit>>> fetchSubmoduleRecentCommits(
+    String repoPath,
+    String subPath,
+    int limit,
+    AppLang lang,
+  ) async {
+    final tr = t(lang);
+    if (!supportsNativeGit) return Result.err(tr.platformUnsupported('Web'));
+    // 条数钳制到 1~50，参照面板只需最近几条。
+    final n = limit.clamp(1, 50);
+    try {
+      final dir = await _resolveRepo(repoPath, lang);
+      final out = await _runner.run('$dir/$subPath', [
+        'log',
+        '--topo-order',
+        '--date=format:%Y-%m-%d %H:%M',
+        '--format=$_commitFmt',
+        '--max-count=$n',
+      ]);
+      if (!out.ok) throw Exception(out.stderr);
+      return Result.ok(GitLogParser.parse(out.stdout));
+    } catch (e, st) {
+      return Result.err(
+        '${tr.submoduleLogFail}: ${cleanError(e)}',
+        cause: e,
+        stackTrace: st,
+      );
     }
   }
 
   /// 回填子模块指针两侧 id 在子模块里的信息
   Future<List<GitCommit>> enrichSubmoduleChanges(
-      String workDir, List<GitCommit> commits) async {
+    String workDir,
+    List<GitCommit> commits,
+  ) async {
     final wanted = <String, Set<String>>{};
     for (final c in commits) {
       for (final ch in c.submoduleChanges) {
@@ -147,7 +215,9 @@ class GitCommitDataSource {
     for (final entry in wanted.entries) {
       try {
         final got = await _queryMiniCommits(
-            '$workDir/${entry.key}', entry.value.toList());
+          '$workDir/${entry.key}',
+          entry.value.toList(),
+        );
         for (final e in got.entries) {
           // 缓存 key：路径 + NUL + sha，避免拼接冲突。
           infos['${entry.key}\x00${e.key}'] = e.value;
@@ -158,28 +228,39 @@ class GitCommitDataSource {
     return commits.map((c) {
       if (c.submoduleChanges.isEmpty) return c;
       return c.copyWith(
-          submoduleChanges: c.submoduleChanges.map((ch) {
-        final old =
-            ch.oldSha == null ? null : infos['${ch.path}\x00${ch.oldSha}'];
-        final n =
-            ch.newSha == null ? null : infos['${ch.path}\x00${ch.newSha}'];
-        return ch.copyWith(
-          oldAuthor: (old?.author.isNotEmpty ?? false) ? old!.author : ch.oldAuthor,
-          oldDate: (old?.date.isNotEmpty ?? false) ? old!.date : ch.oldDate,
-          oldSubject:
-              (old?.subject.isNotEmpty ?? false) ? old!.subject : ch.oldSubject,
-          newAuthor: (n?.author.isNotEmpty ?? false) ? n!.author : ch.newAuthor,
-          newDate: (n?.date.isNotEmpty ?? false) ? n!.date : ch.newDate,
-          newSubject:
-              (n?.subject.isNotEmpty ?? false) ? n!.subject : ch.newSubject,
-        );
-      }).toList());
+        submoduleChanges: c.submoduleChanges.map((ch) {
+          final old = ch.oldSha == null
+              ? null
+              : infos['${ch.path}\x00${ch.oldSha}'];
+          final n = ch.newSha == null
+              ? null
+              : infos['${ch.path}\x00${ch.newSha}'];
+          return ch.copyWith(
+            oldAuthor: (old?.author.isNotEmpty ?? false)
+                ? old!.author
+                : ch.oldAuthor,
+            oldDate: (old?.date.isNotEmpty ?? false) ? old!.date : ch.oldDate,
+            oldSubject: (old?.subject.isNotEmpty ?? false)
+                ? old!.subject
+                : ch.oldSubject,
+            newAuthor: (n?.author.isNotEmpty ?? false)
+                ? n!.author
+                : ch.newAuthor,
+            newDate: (n?.date.isNotEmpty ?? false) ? n!.date : ch.newDate,
+            newSubject: (n?.subject.isNotEmpty ?? false)
+                ? n!.subject
+                : ch.newSubject,
+          );
+        }).toList(),
+      );
     }).toList();
   }
 
   /// 补检 merge 的子模块静默丢失
   Future<List<GitCommit>> detectMergeSubmoduleDrift(
-      String workDir, List<GitCommit> commits) async {
+    String workDir,
+    List<GitCommit> commits,
+  ) async {
     final merges = commits.where((e) => e.parents.length == 2).toList();
     if (merges.isEmpty) return commits;
     final resultMap = <String, List<SubmoduleChange>>{};
@@ -218,9 +299,11 @@ class GitCommitDataSource {
     }
     if (resultMap.isEmpty) return commits;
     return commits
-        .map((c) => resultMap.containsKey(c.sha)
-            ? c.copyWith(submoduleChanges: resultMap[c.sha]!)
-            : c)
+        .map(
+          (c) => resultMap.containsKey(c.sha)
+              ? c.copyWith(submoduleChanges: resultMap[c.sha]!)
+              : c,
+        )
         .toList();
   }
 
@@ -234,7 +317,7 @@ class GitCommitDataSource {
   }) {
     final allPaths = {
       ...changesP1.map((e) => e.path),
-      ...changesP2.map((e) => e.path)
+      ...changesP2.map((e) => e.path),
     };
     if (allPaths.isEmpty) return null;
     final p1Map = {for (final e in changesP1) e.path: e};
@@ -275,15 +358,22 @@ class GitCommitDataSource {
   }
 
   Future<Map<String, _MiniCommit>> _queryMiniCommits(
-      String workDir, List<String> shas) async {
-    final distinct =
-        shas.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet().toList();
+    String workDir,
+    List<String> shas,
+  ) async {
+    final distinct = shas
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toSet()
+        .toList();
     if (distinct.isEmpty) return {};
     final result = <String, _MiniCommit>{};
     // 每批 80 个 sha，避免单次参数过长；`<00>` 为字段分隔。
     for (var i = 0; i < distinct.length; i += 80) {
       final chunk = distinct.sublist(
-          i, i + 80 > distinct.length ? distinct.length : i + 80);
+        i,
+        i + 80 > distinct.length ? distinct.length : i + 80,
+      );
       final out = await _runner.run(workDir, [
         'log',
         '--no-walk',
@@ -298,8 +388,7 @@ class GitCommitDataSource {
         if (f.length < 4) continue;
         final sha = f[0].trim();
         if (sha.isEmpty) continue;
-        result[sha] =
-            _MiniCommit(f[1].trim(), f[2].trim(), f[3].trim());
+        result[sha] = _MiniCommit(f[1].trim(), f[2].trim(), f[3].trim());
       }
     }
     return result;
@@ -307,20 +396,25 @@ class GitCommitDataSource {
 
   /// 补查范围外的溯源提交
   Future<List<GitCommit>> fillRecordGaps(
-      String workDir, List<GitCommit> commits) async {
+    String workDir,
+    List<GitCommit> commits,
+  ) async {
     final missing = commits
-        .expand((c) => c.submoduleChanges
-            .where((ch) {
-              if (ch.silentlyDropped) return false;
-              final needRecorded = (ch.oldSha?.isNotEmpty ?? false) &&
-                  ch.recordedBy == null;
-              final needActual = c.parents.length > 1 &&
-                  ch.newSha != null &&
-                  !ch.resolvedInMerge &&
-                  ch.actualSwitchBy == null;
-              return needRecorded || needActual;
-            })
-            .map((e) => e.path))
+        .expand(
+          (c) => c.submoduleChanges
+              .where((ch) {
+                if (ch.silentlyDropped) return false;
+                final needRecorded =
+                    (ch.oldSha?.isNotEmpty ?? false) && ch.recordedBy == null;
+                final needActual =
+                    c.parents.length > 1 &&
+                    ch.newSha != null &&
+                    !ch.resolvedInMerge &&
+                    ch.actualSwitchBy == null;
+                return needRecorded || needActual;
+              })
+              .map((e) => e.path),
+        )
         .toSet()
         .toList();
     if (missing.isEmpty) return commits;
@@ -347,9 +441,11 @@ class GitCommitDataSource {
   Future<String> _resolveRepo(String repoPath, AppLang lang) async {
     final trimmed = repoPath.trim();
     if (GitUrlDetector.isRemoteUrl(trimmed)) {
-      return (await RemoteRepoResolver.resolve(trimmed, lang,
-              fetchIfCached: true))
-          .path;
+      return (await _resolver.resolve(
+        trimmed,
+        lang,
+        fetchIfCached: true,
+      )).path;
     }
     return trimmed.isEmpty ? '.' : trimmed;
   }
@@ -359,5 +455,6 @@ class _MiniCommit {
   final String author;
   final String date;
   final String subject;
+
   const _MiniCommit(this.author, this.date, this.subject);
 }

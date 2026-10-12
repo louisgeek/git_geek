@@ -9,9 +9,9 @@ GitGeek：跨平台 Git tag/commit/子模块对比工具（Flutter 桌面+移动
 - 路由：`go_router`（装配在 `lib/di/router.dart`，`/tags` 对比页与 `/commits` 日志页，`/` 重定向到 `/tags`）
 - 网络：`dio`（装配在 `lib/di/network.dart`，封装类在 `core/network/dio_client.dart`），只用于 GitHub/GitLab REST；**仓库操作必须走本地 git CLI**（`lib/data/git_runner*.dart`），别用 HTTP 替代
 - 日志：`logger` 包，统一从 `loggerProvider` 取（装配在 `lib/di/logging.dart`）；禁止 `print`/`debugPrint`
-- 存储分层（按数据类型选，别混用；类在 `core/storage/`，无状态装配集中在 `lib/di/storage.dart`）：
+- 存储分层（按数据类型选，别混用；类在 `core/storage/`，无状态装配在 `lib/di/storage.dart`，唯一的例外是 `appPrefsProvider` 与消费者 `SettingsRepository` 同在 `core/storage/app_prefs.dart`，避免 core→di 反向引用）：
   - token/密码 → `flutter_secure_storage`（`TokenStore` 类）
-  - 简单偏好（repoPath/remote/lang/sort）→ `SharedPreferences`（有状态的 `SettingsRepository` 在 `core/storage/app_prefs.dart`）
+  - 简单偏好（repoPath/remote/lang/sort）→ `SharedPreferences`（`appPrefsProvider` + 有状态的 `SettingsRepository`，同在 `core/storage/app_prefs.dart`）
   - 离线缓存（remote tags 兜底，一仓一条文档）→ Sembast（`AppDatabase`）
 
 ## 目录结构（feature-first MVVM）
@@ -19,8 +19,8 @@ GitGeek：跨平台 Git tag/commit/子模块对比工具（Flutter 桌面+移动
 ```
 lib/
   main.dart                       # 入口：预加载 prefs + ProviderScope override
-  di/                             # 全局无状态依赖装配 Provider（network/storage/logging/router）
-  core/                           # 跨 feature 纯能力类/封装（network/storage/widgets），不放 provider
+  di/                             # 全局无状态依赖装配 Provider（network/storage/logging/router/git）
+  core/                           # 跨 feature 纯能力类/封装（network/storage/widgets），不放 provider（偏好 provider 例外：appPrefs/SettingsRepository 同在 storage/app_prefs.dart）
   features/
     tags/                         # data(仓储类) / di(feature 装配) / presentation(Notifier+State+页面+widgets)
     commits/ workspace/ ...       # 同结构（workspace 为应用外壳：仓库配置+tags 内页签/范围+协调逻辑+共享壳组件）
@@ -32,7 +32,7 @@ lib/
 
 依赖方向：`presentation → feature/di → data(repository) → core`，反向禁止。Notifier 不直调 DataSource/Sembast。
 
-**di 目录只存放无状态依赖装配 Provider**（实例创建/组合）。应用单例（logging/storage/network/router）用 `@Riverpod(keepAlive: true)`；feature 薄封装（tags/commits Repository）用默认 `@riverpod`（autoDispose）即可。有状态 Notifier 一律不进 di：feature 的放 `presentation/`，全局的（如 `SettingsRepository`）留在 `core/` 对应文件。di 自身只 import 类定义，不 import 有状态 Notifier。
+**di 目录只存放无状态依赖装配 Provider**（实例创建/组合）。应用单例（logging/storage/network/router/git）用 `@Riverpod(keepAlive: true)`；feature 薄封装（tags/commits Repository）用默认 `@riverpod`（autoDispose）即可。有状态 Notifier 一律不进 di：feature 的放 `presentation/`，全局的（如 `SettingsRepository`）留在 `core/` 对应文件。di 自身只 import 类定义，不 import 有状态 Notifier。唯一的例外是 `appPrefsProvider` 与消费者 `SettingsRepository` 同在 `core/storage/app_prefs.dart`，避免 core→di 反向引用。
 
 ## 代码生成
 
@@ -61,4 +61,4 @@ flutter test       # 全绿，且 merge-drift/溯源等核心链路必须有单�
 
 - 老 `GitTagController`/`GitTagUiState`（700+ 行 God State）已迁为 `features/workspace`（`WorkspaceNotifier` + Freezed `WorkspaceState`），`lib/state/` 已删除；`lib/data/settings.dart` 已删除。
 - 偏好唯一源为 `SettingsRepository`（key 与老 `GitTagSettings` 一致，老数据直接复用）。
-- `GitTagDataSource`/`GitCommitDataSource` 已改为实例类（构造注入 `GitRunner`，语言按调用透传 `AppLang`，无全局语言状态）；`RemoteRepoResolver` 仍为静态工具类（进程级串行锁），但调用方显式传 `lang`。
+- `GitTagDataSource`/`GitCommitDataSource` 已改为实例类（构造注入 `GitRunner` + `RemoteRepoResolver`，语言按调用透传 `AppLang`，无全局语言状态）；`RemoteRepoResolver` 已由静态工具类改为实例类（构造注入 `GitRunner`，串行锁实例级，单例下等价进程级）。

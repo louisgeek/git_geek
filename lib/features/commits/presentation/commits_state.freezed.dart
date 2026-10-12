@@ -18,7 +18,8 @@ mixin _$CommitsState {
  List<GitCommit> get commits; List<GitBranch> get branches; List<GitSubmodule> get submodules; Map<String, String> get submoduleBranches; String get remoteUrl;/// 当前分支（'' = 当前 HEAD）
  String get branch; String get commitLimit; String get commitQuery; bool get newestFirst; bool get isLoadingCommits; bool get isLoadingBranches; bool get isLoadingSubmodules; bool get isCloning; String get cloningInfo; String? get commitError; String? get branchError; String? get submoduleError; String get lastRefreshInfo;/// 子模块范围（'' = 主仓库）；与 controller 的 selectedScope 同步。
  String get scope;/// remote 名（与 controller 的 remote 同步，用于 fetchRemoteUrl）。
- String get remoteName;
+ String get remoteName;/// 各子模块最近提交（参照面板用），key = 子模块 path。
+ Map<String, List<GitCommit>> get submoduleLogs; bool get isLoadingSubmoduleLogs;
 /// Create a copy of CommitsState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +31,20 @@ $CommitsStateCopyWith<CommitsState> get copyWith => _$CommitsStateCopyWithImpl<C
 @override
 bool operator ==(Object other) {
   final _this = this as CommitsState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommitsState&&const DeepCollectionEquality().equals(other.commits, _this.commits)&&const DeepCollectionEquality().equals(other.branches, _this.branches)&&const DeepCollectionEquality().equals(other.submodules, _this.submodules)&&const DeepCollectionEquality().equals(other.submoduleBranches, _this.submoduleBranches)&&(identical(other.remoteUrl, _this.remoteUrl) || other.remoteUrl == _this.remoteUrl)&&(identical(other.branch, _this.branch) || other.branch == _this.branch)&&(identical(other.commitLimit, _this.commitLimit) || other.commitLimit == _this.commitLimit)&&(identical(other.commitQuery, _this.commitQuery) || other.commitQuery == _this.commitQuery)&&(identical(other.newestFirst, _this.newestFirst) || other.newestFirst == _this.newestFirst)&&(identical(other.isLoadingCommits, _this.isLoadingCommits) || other.isLoadingCommits == _this.isLoadingCommits)&&(identical(other.isLoadingBranches, _this.isLoadingBranches) || other.isLoadingBranches == _this.isLoadingBranches)&&(identical(other.isLoadingSubmodules, _this.isLoadingSubmodules) || other.isLoadingSubmodules == _this.isLoadingSubmodules)&&(identical(other.isCloning, _this.isCloning) || other.isCloning == _this.isCloning)&&(identical(other.cloningInfo, _this.cloningInfo) || other.cloningInfo == _this.cloningInfo)&&(identical(other.commitError, _this.commitError) || other.commitError == _this.commitError)&&(identical(other.branchError, _this.branchError) || other.branchError == _this.branchError)&&(identical(other.submoduleError, _this.submoduleError) || other.submoduleError == _this.submoduleError)&&(identical(other.lastRefreshInfo, _this.lastRefreshInfo) || other.lastRefreshInfo == _this.lastRefreshInfo)&&(identical(other.scope, _this.scope) || other.scope == _this.scope)&&(identical(other.remoteName, _this.remoteName) || other.remoteName == _this.remoteName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CommitsState&&const DeepCollectionEquality().equals(other.commits, _this.commits)&&const DeepCollectionEquality().equals(other.branches, _this.branches)&&const DeepCollectionEquality().equals(other.submodules, _this.submodules)&&const DeepCollectionEquality().equals(other.submoduleBranches, _this.submoduleBranches)&&(identical(other.remoteUrl, _this.remoteUrl) || other.remoteUrl == _this.remoteUrl)&&(identical(other.branch, _this.branch) || other.branch == _this.branch)&&(identical(other.commitLimit, _this.commitLimit) || other.commitLimit == _this.commitLimit)&&(identical(other.commitQuery, _this.commitQuery) || other.commitQuery == _this.commitQuery)&&(identical(other.newestFirst, _this.newestFirst) || other.newestFirst == _this.newestFirst)&&(identical(other.isLoadingCommits, _this.isLoadingCommits) || other.isLoadingCommits == _this.isLoadingCommits)&&(identical(other.isLoadingBranches, _this.isLoadingBranches) || other.isLoadingBranches == _this.isLoadingBranches)&&(identical(other.isLoadingSubmodules, _this.isLoadingSubmodules) || other.isLoadingSubmodules == _this.isLoadingSubmodules)&&(identical(other.isCloning, _this.isCloning) || other.isCloning == _this.isCloning)&&(identical(other.cloningInfo, _this.cloningInfo) || other.cloningInfo == _this.cloningInfo)&&(identical(other.commitError, _this.commitError) || other.commitError == _this.commitError)&&(identical(other.branchError, _this.branchError) || other.branchError == _this.branchError)&&(identical(other.submoduleError, _this.submoduleError) || other.submoduleError == _this.submoduleError)&&(identical(other.lastRefreshInfo, _this.lastRefreshInfo) || other.lastRefreshInfo == _this.lastRefreshInfo)&&(identical(other.scope, _this.scope) || other.scope == _this.scope)&&(identical(other.remoteName, _this.remoteName) || other.remoteName == _this.remoteName)&&const DeepCollectionEquality().equals(other.submoduleLogs, _this.submoduleLogs)&&(identical(other.isLoadingSubmoduleLogs, _this.isLoadingSubmoduleLogs) || other.isLoadingSubmoduleLogs == _this.isLoadingSubmoduleLogs));
 }
 
 
 @override
 int get hashCode {
   final _this = this as CommitsState;
-  return Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_this.commits),const DeepCollectionEquality().hash(_this.branches),const DeepCollectionEquality().hash(_this.submodules),const DeepCollectionEquality().hash(_this.submoduleBranches),_this.remoteUrl,_this.branch,_this.commitLimit,_this.commitQuery,_this.newestFirst,_this.isLoadingCommits,_this.isLoadingBranches,_this.isLoadingSubmodules,_this.isCloning,_this.cloningInfo,_this.commitError,_this.branchError,_this.submoduleError,_this.lastRefreshInfo,_this.scope,_this.remoteName]);
+  return Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_this.commits),const DeepCollectionEquality().hash(_this.branches),const DeepCollectionEquality().hash(_this.submodules),const DeepCollectionEquality().hash(_this.submoduleBranches),_this.remoteUrl,_this.branch,_this.commitLimit,_this.commitQuery,_this.newestFirst,_this.isLoadingCommits,_this.isLoadingBranches,_this.isLoadingSubmodules,_this.isCloning,_this.cloningInfo,_this.commitError,_this.branchError,_this.submoduleError,_this.lastRefreshInfo,_this.scope,_this.remoteName,const DeepCollectionEquality().hash(_this.submoduleLogs),_this.isLoadingSubmoduleLogs]);
 }
 
 @override
 String toString() {
   final _this = this as CommitsState;
-  return 'CommitsState(commits: ${_this.commits}, branches: ${_this.branches}, submodules: ${_this.submodules}, submoduleBranches: ${_this.submoduleBranches}, remoteUrl: ${_this.remoteUrl}, branch: ${_this.branch}, commitLimit: ${_this.commitLimit}, commitQuery: ${_this.commitQuery}, newestFirst: ${_this.newestFirst}, isLoadingCommits: ${_this.isLoadingCommits}, isLoadingBranches: ${_this.isLoadingBranches}, isLoadingSubmodules: ${_this.isLoadingSubmodules}, isCloning: ${_this.isCloning}, cloningInfo: ${_this.cloningInfo}, commitError: ${_this.commitError}, branchError: ${_this.branchError}, submoduleError: ${_this.submoduleError}, lastRefreshInfo: ${_this.lastRefreshInfo}, scope: ${_this.scope}, remoteName: ${_this.remoteName})';
+  return 'CommitsState(commits: ${_this.commits}, branches: ${_this.branches}, submodules: ${_this.submodules}, submoduleBranches: ${_this.submoduleBranches}, remoteUrl: ${_this.remoteUrl}, branch: ${_this.branch}, commitLimit: ${_this.commitLimit}, commitQuery: ${_this.commitQuery}, newestFirst: ${_this.newestFirst}, isLoadingCommits: ${_this.isLoadingCommits}, isLoadingBranches: ${_this.isLoadingBranches}, isLoadingSubmodules: ${_this.isLoadingSubmodules}, isCloning: ${_this.isCloning}, cloningInfo: ${_this.cloningInfo}, commitError: ${_this.commitError}, branchError: ${_this.branchError}, submoduleError: ${_this.submoduleError}, lastRefreshInfo: ${_this.lastRefreshInfo}, scope: ${_this.scope}, remoteName: ${_this.remoteName}, submoduleLogs: ${_this.submoduleLogs}, isLoadingSubmoduleLogs: ${_this.isLoadingSubmoduleLogs})';
 }
 
 
@@ -54,7 +55,7 @@ abstract mixin class $CommitsStateCopyWith<$Res>  {
   factory $CommitsStateCopyWith(CommitsState value, $Res Function(CommitsState) _then) = _$CommitsStateCopyWithImpl;
 @useResult
 $Res call({
- List<GitCommit> commits, List<GitBranch> branches, List<GitSubmodule> submodules, Map<String, String> submoduleBranches, String remoteUrl, String branch, String commitLimit, String commitQuery, bool newestFirst, bool isLoadingCommits, bool isLoadingBranches, bool isLoadingSubmodules, bool isCloning, String cloningInfo, String? commitError, String? branchError, String? submoduleError, String lastRefreshInfo, String scope, String remoteName
+ List<GitCommit> commits, List<GitBranch> branches, List<GitSubmodule> submodules, Map<String, String> submoduleBranches, String remoteUrl, String branch, String commitLimit, String commitQuery, bool newestFirst, bool isLoadingCommits, bool isLoadingBranches, bool isLoadingSubmodules, bool isCloning, String cloningInfo, String? commitError, String? branchError, String? submoduleError, String lastRefreshInfo, String scope, String remoteName, Map<String, List<GitCommit>> submoduleLogs, bool isLoadingSubmoduleLogs
 });
 
 
@@ -71,7 +72,7 @@ class _$CommitsStateCopyWithImpl<$Res>
 
 /// Create a copy of CommitsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? commits = null,Object? branches = null,Object? submodules = null,Object? submoduleBranches = null,Object? remoteUrl = null,Object? branch = null,Object? commitLimit = null,Object? commitQuery = null,Object? newestFirst = null,Object? isLoadingCommits = null,Object? isLoadingBranches = null,Object? isLoadingSubmodules = null,Object? isCloning = null,Object? cloningInfo = null,Object? commitError = freezed,Object? branchError = freezed,Object? submoduleError = freezed,Object? lastRefreshInfo = null,Object? scope = null,Object? remoteName = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? commits = null,Object? branches = null,Object? submodules = null,Object? submoduleBranches = null,Object? remoteUrl = null,Object? branch = null,Object? commitLimit = null,Object? commitQuery = null,Object? newestFirst = null,Object? isLoadingCommits = null,Object? isLoadingBranches = null,Object? isLoadingSubmodules = null,Object? isCloning = null,Object? cloningInfo = null,Object? commitError = freezed,Object? branchError = freezed,Object? submoduleError = freezed,Object? lastRefreshInfo = null,Object? scope = null,Object? remoteName = null,Object? submoduleLogs = null,Object? isLoadingSubmoduleLogs = null,}) {
   return _then(CommitsState(
 commits: null == commits ? _self.commits : commits // ignore: cast_nullable_to_non_nullable
 as List<GitCommit>,branches: null == branches ? _self.branches : branches // ignore: cast_nullable_to_non_nullable
@@ -93,7 +94,9 @@ as String?,submoduleError: freezed == submoduleError ? _self.submoduleError : su
 as String?,lastRefreshInfo: null == lastRefreshInfo ? _self.lastRefreshInfo : lastRefreshInfo // ignore: cast_nullable_to_non_nullable
 as String,scope: null == scope ? _self.scope : scope // ignore: cast_nullable_to_non_nullable
 as String,remoteName: null == remoteName ? _self.remoteName : remoteName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,submoduleLogs: null == submoduleLogs ? _self.submoduleLogs : submoduleLogs // ignore: cast_nullable_to_non_nullable
+as Map<String, List<GitCommit>>,isLoadingSubmoduleLogs: null == isLoadingSubmoduleLogs ? _self.isLoadingSubmoduleLogs : isLoadingSubmoduleLogs // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -178,10 +181,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<GitCommit> commits,  List<GitBranch> branches,  List<GitSubmodule> submodules,  Map<String, String> submoduleBranches,  String remoteUrl,  String branch,  String commitLimit,  String commitQuery,  bool newestFirst,  bool isLoadingCommits,  bool isLoadingBranches,  bool isLoadingSubmodules,  bool isCloning,  String cloningInfo,  String? commitError,  String? branchError,  String? submoduleError,  String lastRefreshInfo,  String scope,  String remoteName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<GitCommit> commits,  List<GitBranch> branches,  List<GitSubmodule> submodules,  Map<String, String> submoduleBranches,  String remoteUrl,  String branch,  String commitLimit,  String commitQuery,  bool newestFirst,  bool isLoadingCommits,  bool isLoadingBranches,  bool isLoadingSubmodules,  bool isCloning,  String cloningInfo,  String? commitError,  String? branchError,  String? submoduleError,  String lastRefreshInfo,  String scope,  String remoteName,  Map<String, List<GitCommit>> submoduleLogs,  bool isLoadingSubmoduleLogs)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CommitsState() when $default != null:
-return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBranches,_that.remoteUrl,_that.branch,_that.commitLimit,_that.commitQuery,_that.newestFirst,_that.isLoadingCommits,_that.isLoadingBranches,_that.isLoadingSubmodules,_that.isCloning,_that.cloningInfo,_that.commitError,_that.branchError,_that.submoduleError,_that.lastRefreshInfo,_that.scope,_that.remoteName);case _:
+return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBranches,_that.remoteUrl,_that.branch,_that.commitLimit,_that.commitQuery,_that.newestFirst,_that.isLoadingCommits,_that.isLoadingBranches,_that.isLoadingSubmodules,_that.isCloning,_that.cloningInfo,_that.commitError,_that.branchError,_that.submoduleError,_that.lastRefreshInfo,_that.scope,_that.remoteName,_that.submoduleLogs,_that.isLoadingSubmoduleLogs);case _:
   return orElse();
 
 }
@@ -199,10 +202,10 @@ return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBra
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<GitCommit> commits,  List<GitBranch> branches,  List<GitSubmodule> submodules,  Map<String, String> submoduleBranches,  String remoteUrl,  String branch,  String commitLimit,  String commitQuery,  bool newestFirst,  bool isLoadingCommits,  bool isLoadingBranches,  bool isLoadingSubmodules,  bool isCloning,  String cloningInfo,  String? commitError,  String? branchError,  String? submoduleError,  String lastRefreshInfo,  String scope,  String remoteName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<GitCommit> commits,  List<GitBranch> branches,  List<GitSubmodule> submodules,  Map<String, String> submoduleBranches,  String remoteUrl,  String branch,  String commitLimit,  String commitQuery,  bool newestFirst,  bool isLoadingCommits,  bool isLoadingBranches,  bool isLoadingSubmodules,  bool isCloning,  String cloningInfo,  String? commitError,  String? branchError,  String? submoduleError,  String lastRefreshInfo,  String scope,  String remoteName,  Map<String, List<GitCommit>> submoduleLogs,  bool isLoadingSubmoduleLogs)  $default,) {final _that = this;
 switch (_that) {
 case _CommitsState():
-return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBranches,_that.remoteUrl,_that.branch,_that.commitLimit,_that.commitQuery,_that.newestFirst,_that.isLoadingCommits,_that.isLoadingBranches,_that.isLoadingSubmodules,_that.isCloning,_that.cloningInfo,_that.commitError,_that.branchError,_that.submoduleError,_that.lastRefreshInfo,_that.scope,_that.remoteName);case _:
+return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBranches,_that.remoteUrl,_that.branch,_that.commitLimit,_that.commitQuery,_that.newestFirst,_that.isLoadingCommits,_that.isLoadingBranches,_that.isLoadingSubmodules,_that.isCloning,_that.cloningInfo,_that.commitError,_that.branchError,_that.submoduleError,_that.lastRefreshInfo,_that.scope,_that.remoteName,_that.submoduleLogs,_that.isLoadingSubmoduleLogs);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -219,10 +222,10 @@ return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBra
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<GitCommit> commits,  List<GitBranch> branches,  List<GitSubmodule> submodules,  Map<String, String> submoduleBranches,  String remoteUrl,  String branch,  String commitLimit,  String commitQuery,  bool newestFirst,  bool isLoadingCommits,  bool isLoadingBranches,  bool isLoadingSubmodules,  bool isCloning,  String cloningInfo,  String? commitError,  String? branchError,  String? submoduleError,  String lastRefreshInfo,  String scope,  String remoteName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<GitCommit> commits,  List<GitBranch> branches,  List<GitSubmodule> submodules,  Map<String, String> submoduleBranches,  String remoteUrl,  String branch,  String commitLimit,  String commitQuery,  bool newestFirst,  bool isLoadingCommits,  bool isLoadingBranches,  bool isLoadingSubmodules,  bool isCloning,  String cloningInfo,  String? commitError,  String? branchError,  String? submoduleError,  String lastRefreshInfo,  String scope,  String remoteName,  Map<String, List<GitCommit>> submoduleLogs,  bool isLoadingSubmoduleLogs)?  $default,) {final _that = this;
 switch (_that) {
 case _CommitsState() when $default != null:
-return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBranches,_that.remoteUrl,_that.branch,_that.commitLimit,_that.commitQuery,_that.newestFirst,_that.isLoadingCommits,_that.isLoadingBranches,_that.isLoadingSubmodules,_that.isCloning,_that.cloningInfo,_that.commitError,_that.branchError,_that.submoduleError,_that.lastRefreshInfo,_that.scope,_that.remoteName);case _:
+return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBranches,_that.remoteUrl,_that.branch,_that.commitLimit,_that.commitQuery,_that.newestFirst,_that.isLoadingCommits,_that.isLoadingBranches,_that.isLoadingSubmodules,_that.isCloning,_that.cloningInfo,_that.commitError,_that.branchError,_that.submoduleError,_that.lastRefreshInfo,_that.scope,_that.remoteName,_that.submoduleLogs,_that.isLoadingSubmoduleLogs);case _:
   return null;
 
 }
@@ -234,7 +237,7 @@ return $default(_that.commits,_that.branches,_that.submodules,_that.submoduleBra
 
 
 class _CommitsState implements CommitsState {
-  const _CommitsState({ List<GitCommit> commits = const [],  List<GitBranch> branches = const [],  List<GitSubmodule> submodules = const [],  Map<String, String> submoduleBranches = const {}, this.remoteUrl = '', this.branch = '', this.commitLimit = '100', this.commitQuery = '', this.newestFirst = true, this.isLoadingCommits = false, this.isLoadingBranches = false, this.isLoadingSubmodules = false, this.isCloning = false, this.cloningInfo = '', this.commitError, this.branchError, this.submoduleError, this.lastRefreshInfo = '', this.scope = '', this.remoteName = 'origin'}): _commits = commits,_branches = branches,_submodules = submodules,_submoduleBranches = submoduleBranches;
+  const _CommitsState({ List<GitCommit> commits = const [],  List<GitBranch> branches = const [],  List<GitSubmodule> submodules = const [],  Map<String, String> submoduleBranches = const {}, this.remoteUrl = '', this.branch = '', this.commitLimit = '100', this.commitQuery = '', this.newestFirst = true, this.isLoadingCommits = false, this.isLoadingBranches = false, this.isLoadingSubmodules = false, this.isCloning = false, this.cloningInfo = '', this.commitError, this.branchError, this.submoduleError, this.lastRefreshInfo = '', this.scope = '', this.remoteName = 'origin',  Map<String, List<GitCommit>> submoduleLogs = const {}, this.isLoadingSubmoduleLogs = false}): _commits = commits,_branches = branches,_submodules = submodules,_submoduleBranches = submoduleBranches,_submoduleLogs = submoduleLogs;
   
 
  final  List<GitCommit> _commits;
@@ -284,6 +287,16 @@ class _CommitsState implements CommitsState {
 @override@JsonKey() final  String scope;
 /// remote 名（与 controller 的 remote 同步，用于 fetchRemoteUrl）。
 @override@JsonKey() final  String remoteName;
+/// 各子模块最近提交（参照面板用），key = 子模块 path。
+ final  Map<String, List<GitCommit>> _submoduleLogs;
+/// 各子模块最近提交（参照面板用），key = 子模块 path。
+@override@JsonKey() Map<String, List<GitCommit>> get submoduleLogs {
+  if (_submoduleLogs is EqualUnmodifiableMapView) return _submoduleLogs;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_submoduleLogs);
+}
+
+@override@JsonKey() final  bool isLoadingSubmoduleLogs;
 
 /// Create a copy of CommitsState
 /// with the given fields replaced by the non-null parameter values.
@@ -295,18 +308,18 @@ _$CommitsStateCopyWith<_CommitsState> get copyWith => __$CommitsStateCopyWithImp
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommitsState&&const DeepCollectionEquality().equals(other.commits, _commits)&&const DeepCollectionEquality().equals(other.branches, _branches)&&const DeepCollectionEquality().equals(other.submodules, _submodules)&&const DeepCollectionEquality().equals(other.submoduleBranches, _submoduleBranches)&&(identical(other.remoteUrl, remoteUrl) || other.remoteUrl == remoteUrl)&&(identical(other.branch, branch) || other.branch == branch)&&(identical(other.commitLimit, commitLimit) || other.commitLimit == commitLimit)&&(identical(other.commitQuery, commitQuery) || other.commitQuery == commitQuery)&&(identical(other.newestFirst, newestFirst) || other.newestFirst == newestFirst)&&(identical(other.isLoadingCommits, isLoadingCommits) || other.isLoadingCommits == isLoadingCommits)&&(identical(other.isLoadingBranches, isLoadingBranches) || other.isLoadingBranches == isLoadingBranches)&&(identical(other.isLoadingSubmodules, isLoadingSubmodules) || other.isLoadingSubmodules == isLoadingSubmodules)&&(identical(other.isCloning, isCloning) || other.isCloning == isCloning)&&(identical(other.cloningInfo, cloningInfo) || other.cloningInfo == cloningInfo)&&(identical(other.commitError, commitError) || other.commitError == commitError)&&(identical(other.branchError, branchError) || other.branchError == branchError)&&(identical(other.submoduleError, submoduleError) || other.submoduleError == submoduleError)&&(identical(other.lastRefreshInfo, lastRefreshInfo) || other.lastRefreshInfo == lastRefreshInfo)&&(identical(other.scope, scope) || other.scope == scope)&&(identical(other.remoteName, remoteName) || other.remoteName == remoteName));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _CommitsState&&const DeepCollectionEquality().equals(other.commits, _commits)&&const DeepCollectionEquality().equals(other.branches, _branches)&&const DeepCollectionEquality().equals(other.submodules, _submodules)&&const DeepCollectionEquality().equals(other.submoduleBranches, _submoduleBranches)&&(identical(other.remoteUrl, remoteUrl) || other.remoteUrl == remoteUrl)&&(identical(other.branch, branch) || other.branch == branch)&&(identical(other.commitLimit, commitLimit) || other.commitLimit == commitLimit)&&(identical(other.commitQuery, commitQuery) || other.commitQuery == commitQuery)&&(identical(other.newestFirst, newestFirst) || other.newestFirst == newestFirst)&&(identical(other.isLoadingCommits, isLoadingCommits) || other.isLoadingCommits == isLoadingCommits)&&(identical(other.isLoadingBranches, isLoadingBranches) || other.isLoadingBranches == isLoadingBranches)&&(identical(other.isLoadingSubmodules, isLoadingSubmodules) || other.isLoadingSubmodules == isLoadingSubmodules)&&(identical(other.isCloning, isCloning) || other.isCloning == isCloning)&&(identical(other.cloningInfo, cloningInfo) || other.cloningInfo == cloningInfo)&&(identical(other.commitError, commitError) || other.commitError == commitError)&&(identical(other.branchError, branchError) || other.branchError == branchError)&&(identical(other.submoduleError, submoduleError) || other.submoduleError == submoduleError)&&(identical(other.lastRefreshInfo, lastRefreshInfo) || other.lastRefreshInfo == lastRefreshInfo)&&(identical(other.scope, scope) || other.scope == scope)&&(identical(other.remoteName, remoteName) || other.remoteName == remoteName)&&const DeepCollectionEquality().equals(other.submoduleLogs, _submoduleLogs)&&(identical(other.isLoadingSubmoduleLogs, isLoadingSubmoduleLogs) || other.isLoadingSubmoduleLogs == isLoadingSubmoduleLogs));
 }
 
 
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_commits),const DeepCollectionEquality().hash(_branches),const DeepCollectionEquality().hash(_submodules),const DeepCollectionEquality().hash(_submoduleBranches),remoteUrl,branch,commitLimit,commitQuery,newestFirst,isLoadingCommits,isLoadingBranches,isLoadingSubmodules,isCloning,cloningInfo,commitError,branchError,submoduleError,lastRefreshInfo,scope,remoteName]);
+    return Object.hashAll([runtimeType,const DeepCollectionEquality().hash(_commits),const DeepCollectionEquality().hash(_branches),const DeepCollectionEquality().hash(_submodules),const DeepCollectionEquality().hash(_submoduleBranches),remoteUrl,branch,commitLimit,commitQuery,newestFirst,isLoadingCommits,isLoadingBranches,isLoadingSubmodules,isCloning,cloningInfo,commitError,branchError,submoduleError,lastRefreshInfo,scope,remoteName,const DeepCollectionEquality().hash(_submoduleLogs),isLoadingSubmoduleLogs]);
 }
 
 @override
 String toString() {
-    return 'CommitsState(commits: $commits, branches: $branches, submodules: $submodules, submoduleBranches: $submoduleBranches, remoteUrl: $remoteUrl, branch: $branch, commitLimit: $commitLimit, commitQuery: $commitQuery, newestFirst: $newestFirst, isLoadingCommits: $isLoadingCommits, isLoadingBranches: $isLoadingBranches, isLoadingSubmodules: $isLoadingSubmodules, isCloning: $isCloning, cloningInfo: $cloningInfo, commitError: $commitError, branchError: $branchError, submoduleError: $submoduleError, lastRefreshInfo: $lastRefreshInfo, scope: $scope, remoteName: $remoteName)';
+    return 'CommitsState(commits: $commits, branches: $branches, submodules: $submodules, submoduleBranches: $submoduleBranches, remoteUrl: $remoteUrl, branch: $branch, commitLimit: $commitLimit, commitQuery: $commitQuery, newestFirst: $newestFirst, isLoadingCommits: $isLoadingCommits, isLoadingBranches: $isLoadingBranches, isLoadingSubmodules: $isLoadingSubmodules, isCloning: $isCloning, cloningInfo: $cloningInfo, commitError: $commitError, branchError: $branchError, submoduleError: $submoduleError, lastRefreshInfo: $lastRefreshInfo, scope: $scope, remoteName: $remoteName, submoduleLogs: $submoduleLogs, isLoadingSubmoduleLogs: $isLoadingSubmoduleLogs)';
 }
 
 
@@ -317,7 +330,7 @@ abstract mixin class _$CommitsStateCopyWith<$Res> implements $CommitsStateCopyWi
   factory _$CommitsStateCopyWith(_CommitsState value, $Res Function(_CommitsState) _then) = __$CommitsStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<GitCommit> commits, List<GitBranch> branches, List<GitSubmodule> submodules, Map<String, String> submoduleBranches, String remoteUrl, String branch, String commitLimit, String commitQuery, bool newestFirst, bool isLoadingCommits, bool isLoadingBranches, bool isLoadingSubmodules, bool isCloning, String cloningInfo, String? commitError, String? branchError, String? submoduleError, String lastRefreshInfo, String scope, String remoteName
+ List<GitCommit> commits, List<GitBranch> branches, List<GitSubmodule> submodules, Map<String, String> submoduleBranches, String remoteUrl, String branch, String commitLimit, String commitQuery, bool newestFirst, bool isLoadingCommits, bool isLoadingBranches, bool isLoadingSubmodules, bool isCloning, String cloningInfo, String? commitError, String? branchError, String? submoduleError, String lastRefreshInfo, String scope, String remoteName, Map<String, List<GitCommit>> submoduleLogs, bool isLoadingSubmoduleLogs
 });
 
 
@@ -334,7 +347,7 @@ class __$CommitsStateCopyWithImpl<$Res>
 
 /// Create a copy of CommitsState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? commits = null,Object? branches = null,Object? submodules = null,Object? submoduleBranches = null,Object? remoteUrl = null,Object? branch = null,Object? commitLimit = null,Object? commitQuery = null,Object? newestFirst = null,Object? isLoadingCommits = null,Object? isLoadingBranches = null,Object? isLoadingSubmodules = null,Object? isCloning = null,Object? cloningInfo = null,Object? commitError = freezed,Object? branchError = freezed,Object? submoduleError = freezed,Object? lastRefreshInfo = null,Object? scope = null,Object? remoteName = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? commits = null,Object? branches = null,Object? submodules = null,Object? submoduleBranches = null,Object? remoteUrl = null,Object? branch = null,Object? commitLimit = null,Object? commitQuery = null,Object? newestFirst = null,Object? isLoadingCommits = null,Object? isLoadingBranches = null,Object? isLoadingSubmodules = null,Object? isCloning = null,Object? cloningInfo = null,Object? commitError = freezed,Object? branchError = freezed,Object? submoduleError = freezed,Object? lastRefreshInfo = null,Object? scope = null,Object? remoteName = null,Object? submoduleLogs = null,Object? isLoadingSubmoduleLogs = null,}) {
   return _then(_CommitsState(
 commits: null == commits ? _self._commits : commits // ignore: cast_nullable_to_non_nullable
 as List<GitCommit>,branches: null == branches ? _self._branches : branches // ignore: cast_nullable_to_non_nullable
@@ -356,7 +369,9 @@ as String?,submoduleError: freezed == submoduleError ? _self.submoduleError : su
 as String?,lastRefreshInfo: null == lastRefreshInfo ? _self.lastRefreshInfo : lastRefreshInfo // ignore: cast_nullable_to_non_nullable
 as String,scope: null == scope ? _self.scope : scope // ignore: cast_nullable_to_non_nullable
 as String,remoteName: null == remoteName ? _self.remoteName : remoteName // ignore: cast_nullable_to_non_nullable
-as String,
+as String,submoduleLogs: null == submoduleLogs ? _self._submoduleLogs : submoduleLogs // ignore: cast_nullable_to_non_nullable
+as Map<String, List<GitCommit>>,isLoadingSubmoduleLogs: null == isLoadingSubmoduleLogs ? _self.isLoadingSubmoduleLogs : isLoadingSubmoduleLogs // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

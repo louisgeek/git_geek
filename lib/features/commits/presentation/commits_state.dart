@@ -30,6 +30,9 @@ abstract class CommitsState with _$CommitsState {
     @Default('') String scope,
     /// remote 名（与 controller 的 remote 同步，用于 fetchRemoteUrl）。
     @Default('origin') String remoteName,
+    /// 各子模块最近提交（参照面板用），key = 子模块 path。
+    @Default({}) Map<String, List<GitCommit>> submoduleLogs,
+    @Default(false) bool isLoadingSubmoduleLogs,
   }) = _CommitsState;
 }
 

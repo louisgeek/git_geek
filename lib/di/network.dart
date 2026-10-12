@@ -7,7 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'network.g.dart';
 
 /// Dio 装配：只负责 GitHub/GitLab 等 HTTP API，不替代本地 git CLI。
-/// 本地 git 操作继续走 gitRunner（Process）。
+/// 本地 git 操作走 `lib/di/git.dart` 的 gitRunnerProvider（Process）。
 @Riverpod(keepAlive: true)
 Dio dio(Ref ref) {
   final dio = Dio(

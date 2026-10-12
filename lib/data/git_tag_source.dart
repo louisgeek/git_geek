@@ -12,7 +12,14 @@ class _TagRefInfo {
   final String tagDate;
   final String subject;
   final String body;
-  const _TagRefInfo(this.objectType, this.tagger, this.tagDate, this.subject, this.body);
+
+  const _TagRefInfo(
+    this.objectType,
+    this.tagger,
+    this.tagDate,
+    this.subject,
+    this.body,
+  );
 }
 
 class _CommitInfo {
@@ -20,6 +27,7 @@ class _CommitInfo {
   final String date;
   final String subject;
   final String body;
+
   const _CommitInfo(this.author, this.date, this.subject, this.body);
 }
 
@@ -27,22 +35,24 @@ class _CommitInfo {
 /// 经 `features/tags/di/providers.dart` 装配进 `TagsRepository`。
 class GitTagDataSource {
   final GitRunner _runner;
-  GitTagDataSource(this._runner);
+  final RemoteRepoResolver _resolver;
+  GitTagDataSource(this._runner, this._resolver);
 
   /// 是否支持本地 git。
   bool get supportsNativeGit => _runner.supportsNativeGit;
 
   /// 拉取本地 tag：show-ref 优先，失败回退 `git tag -l`，再补附注与提交详情。
   Future<Result<List<GitTag>>> fetchLocalTags(
-      String repoPath, AppLang lang) async {
+    String repoPath,
+    AppLang lang,
+  ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
       return Result.err(tr.platformUnsupported('Web'));
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
-      final showRef =
-          await _runner.run(dir, ['show-ref', '-d', '--tags']);
+      final showRef = await _runner.run(dir, ['show-ref', '-d', '--tags']);
       var parsed = <GitTag>[];
       if (showRef.ok) {
         final out = showRef.stdout.trim();
@@ -51,7 +61,8 @@ class GitTagDataSource {
       final base = parsed.isNotEmpty
           ? parsed
           : GitTagParser.parseLocal(
-              (await _runner.run(dir, ['tag', '-l'])).stdoutOrThrow());
+              (await _runner.run(dir, ['tag', '-l'])).stdoutOrThrow(),
+            );
       if (base.isEmpty) return const Result.ok([]);
       return Result.ok(await _enrichLocal(dir, base));
     } catch (e, st) {
@@ -65,7 +76,10 @@ class GitTagDataSource {
 
   /// 拉取远程 tag：`ls-remote --tags` 解析后补本地已存在对象的提交详情。
   Future<Result<List<GitTag>>> fetchRemoteTags(
-      String repoPath, String remote, AppLang lang) async {
+    String repoPath,
+    String remote,
+    AppLang lang,
+  ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
       return Result.err(tr.platformUnsupported('Web'));
@@ -73,8 +87,11 @@ class GitTagDataSource {
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final target = remote.trim().isEmpty ? 'origin' : remote.trim();
-      final out = (await _runner.run(dir, ['ls-remote', '--tags', target]))
-          .stdoutOrThrow();
+      final out = (await _runner.run(dir, [
+        'ls-remote',
+        '--tags',
+        target,
+      ])).stdoutOrThrow();
       final parsed = GitTagParser.parseRemote(out);
       if (parsed.isEmpty) return const Result.ok([]);
       return Result.ok(await _enrichRemote(dir, parsed));
@@ -87,8 +104,7 @@ class GitTagDataSource {
     }
   }
 
-  Future<List<GitTag>> _enrichLocal(
-      String workDir, List<GitTag> tags) async {
+  Future<List<GitTag>> _enrichLocal(String workDir, List<GitTag> tags) async {
     Map<String, _TagRefInfo> refs = {};
     Map<String, _CommitInfo> commits = {};
     try {
@@ -96,15 +112,21 @@ class GitTagDataSource {
     } catch (_) {}
     try {
       commits = await _queryCommits(
-          workDir, tags.map((e) => e.commitSha).whereType<String>().toList());
+        workDir,
+        tags.map((e) => e.commitSha).whereType<String>().toList(),
+      );
     } catch (_) {}
-    return tags.map((t) => _mergeEnrichment(t, refs[t.name], commits[t.commitSha])).toList();
+    return tags
+        .map((t) => _mergeEnrichment(t, refs[t.name], commits[t.commitSha]))
+        .toList();
   }
 
-  Future<List<GitTag>> _enrichRemote(
-      String workDir, List<GitTag> tags) async {
-    final shas =
-        tags.map((e) => e.commitSha).whereType<String>().toSet().toList();
+  Future<List<GitTag>> _enrichRemote(String workDir, List<GitTag> tags) async {
+    final shas = tags
+        .map((e) => e.commitSha)
+        .whereType<String>()
+        .toSet()
+        .toList();
     var existing = shas;
     try {
       existing = await _filterExistingObjects(workDir, shas);
@@ -116,10 +138,13 @@ class GitTagDataSource {
     return tags.map((tag) {
       final ci = commits[tag.commitSha];
       return tag.copyWith(
-        commitAuthor: (ci?.author.isNotEmpty ?? false) ? ci!.author : tag.commitAuthor,
+        commitAuthor: (ci?.author.isNotEmpty ?? false)
+            ? ci!.author
+            : tag.commitAuthor,
         commitDate: (ci?.date.isNotEmpty ?? false) ? ci!.date : tag.commitDate,
-        commitSubject:
-            (ci?.subject.isNotEmpty ?? false) ? ci!.subject : tag.commitSubject,
+        commitSubject: (ci?.subject.isNotEmpty ?? false)
+            ? ci!.subject
+            : tag.commitSubject,
         commitBody: (ci?.body.isNotEmpty ?? false) ? ci!.body : tag.commitBody,
       );
     }).toList();
@@ -129,9 +154,11 @@ class GitTagDataSource {
     // 用 NUL/RS 分隔字段与记录，避免主题正文里的换行干扰解析。
     final fmt =
         '${['%(refname:short)', '%(objecttype)', '%(taggername)', '%(taggerdate:format:%Y-%m-%d %H:%M)', '%(contents:subject)', '%(contents:body)'].join('%x00')}%x1e';
-    final out = (await _runner.run(
-            workDir, ['for-each-ref', '--format=$fmt', 'refs/tags']))
-        .stdoutOrThrow();
+    final out = (await _runner.run(workDir, [
+      'for-each-ref',
+      '--format=$fmt',
+      'refs/tags',
+    ])).stdoutOrThrow();
     final map = <String, _TagRefInfo>{};
     for (final rec in out.split('\u001e')) {
       if (rec.trim().isEmpty) continue;
@@ -140,21 +167,33 @@ class GitTagDataSource {
       final name = f[0].trim();
       if (name.isEmpty) continue;
       map[name] = _TagRefInfo(
-          f[1].trim(), f[2].trim(), f[3].trim(), f[4].trim(), f[5].trim());
+        f[1].trim(),
+        f[2].trim(),
+        f[3].trim(),
+        f[4].trim(),
+        f[5].trim(),
+      );
     }
     return map;
   }
 
   Future<Map<String, _CommitInfo>> _queryCommits(
-      String workDir, List<String> shas) async {
-    final distinct =
-        shas.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet().toList();
+    String workDir,
+    List<String> shas,
+  ) async {
+    final distinct = shas
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toSet()
+        .toList();
     if (distinct.isEmpty) return {};
     final result = <String, _CommitInfo>{};
     // 每批 80 个 sha，避免单次参数过长。
     for (var i = 0; i < distinct.length; i += 80) {
       final chunk = distinct.sublist(
-          i, i + 80 > distinct.length ? distinct.length : i + 80);
+        i,
+        i + 80 > distinct.length ? distinct.length : i + 80,
+      );
       final fmt = '${['%H', '%an', '%ad', '%s', '%b'].join('%x00')}%x1e';
       final out = await _runner.run(workDir, [
         'log',
@@ -171,14 +210,20 @@ class GitTagDataSource {
         final sha = f[0].trim();
         if (sha.isEmpty) continue;
         result[sha] = _CommitInfo(
-            f[1].trim(), f[2].trim(), f[3].trim(), f[4].trim());
+          f[1].trim(),
+          f[2].trim(),
+          f[3].trim(),
+          f[4].trim(),
+        );
       }
     }
     return result;
   }
 
   Future<List<String>> _filterExistingObjects(
-      String workDir, List<String> shas) async {
+    String workDir,
+    List<String> shas,
+  ) async {
     if (shas.isEmpty) return [];
     try {
       // 无 stdin 批量通道，退化为逐个 cat-file -t；
@@ -194,8 +239,7 @@ class GitTagDataSource {
     }
   }
 
-  GitTag _mergeEnrichment(
-      GitTag tag, _TagRefInfo? ref, _CommitInfo? ci) {
+  GitTag _mergeEnrichment(GitTag tag, _TagRefInfo? ref, _CommitInfo? ci) {
     final annotated = ref?.objectType == 'tag';
     final tagMsg = (ref != null && annotated)
         ? _combineSubjectBody(ref.subject, ref.body)
@@ -209,11 +253,13 @@ class GitTagDataSource {
           ? ref.tagDate
           : tag.tagDate,
       tagMessage: tagMsg ?? tag.tagMessage,
-      commitAuthor:
-          (ci?.author.isNotEmpty ?? false) ? ci!.author : tag.commitAuthor,
+      commitAuthor: (ci?.author.isNotEmpty ?? false)
+          ? ci!.author
+          : tag.commitAuthor,
       commitDate: (ci?.date.isNotEmpty ?? false) ? ci!.date : tag.commitDate,
-      commitSubject:
-          (ci?.subject.isNotEmpty ?? false) ? ci!.subject : tag.commitSubject,
+      commitSubject: (ci?.subject.isNotEmpty ?? false)
+          ? ci!.subject
+          : tag.commitSubject,
       commitBody: (ci?.body.isNotEmpty ?? false) ? ci!.body : tag.commitBody,
     );
   }
@@ -230,9 +276,11 @@ class GitTagDataSource {
   Future<String> _resolveRepo(String repoPath, AppLang lang) async {
     final trimmed = repoPath.trim();
     if (GitUrlDetector.isRemoteUrl(trimmed)) {
-      return (await RemoteRepoResolver.resolve(trimmed, lang,
-              fetchIfCached: true))
-          .path;
+      return (await _resolver.resolve(
+        trimmed,
+        lang,
+        fetchIfCached: true,
+      )).path;
     }
     return trimmed.isEmpty ? '.' : trimmed;
   }

@@ -13,8 +13,9 @@ class TagsRepository {
   final AppDatabase _db;
   final Logger _log;
   final GitTagDataSource _dataSource;
+  final RemoteRepoResolver _resolver;
 
-  TagsRepository(this._db, this._log, this._dataSource);
+  TagsRepository(this._db, this._log, this._dataSource, this._resolver);
 
   /// 把 repoPath+scope 解析成实际生效目录（远程 URL 会触发克隆/增量更新）。
   Future<Result<String>> resolveDir(
@@ -24,7 +25,7 @@ class TagsRepository {
   ) async {
     try {
       return Result.ok(
-        await RemoteRepoResolver.resolveEffectiveDir(repoPath, scope, lang),
+        await _resolver.resolveEffectiveDir(repoPath, scope, lang),
       );
     } catch (e, st) {
       _log.w('[tags] resolveDir 失败 $repoPath', error: e, stackTrace: st);

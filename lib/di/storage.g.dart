@@ -8,61 +8,6 @@ part of 'storage.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// SharedPreferences 实例：main() 里预加载后 override，业务只读 provider。
-/// 普通偏好放这里；token/密码放 [TokenStore]；离线表结构数据放 Sembast。
-
-@ProviderFor(appPrefs)
-final appPrefsProvider = AppPrefsProvider._();
-
-/// SharedPreferences 实例：main() 里预加载后 override，业务只读 provider。
-/// 普通偏好放这里；token/密码放 [TokenStore]；离线表结构数据放 Sembast。
-
-final class AppPrefsProvider
-    extends
-        $FunctionalProvider<
-          SharedPreferences,
-          SharedPreferences,
-          SharedPreferences
-        >
-    with $Provider<SharedPreferences> {
-  /// SharedPreferences 实例：main() 里预加载后 override，业务只读 provider。
-  /// 普通偏好放这里；token/密码放 [TokenStore]；离线表结构数据放 Sembast。
-  AppPrefsProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'appPrefsProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$appPrefsHash();
-
-  @$internal
-  @override
-  $ProviderElement<SharedPreferences> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  SharedPreferences create(Ref ref) {
-    return appPrefs(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(SharedPreferences value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<SharedPreferences>(value),
-    );
-  }
-}
-
-String _$appPrefsHash() => r'a59700ea41e8ee64793129da9b497246e8966a1c';
-
 /// Token 存储装配：基于安全存储，用于 GitHub/GitLab token。
 
 @ProviderFor(tokenStore)

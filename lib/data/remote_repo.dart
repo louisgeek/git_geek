@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:git_geek/data/git_runner.dart';
+import 'package:git_geek/data/git_runner_base.dart';
 import 'package:git_geek/data/git_url.dart';
 import 'package:git_geek/l10n/strings.dart';
 import 'package:path_provider/path_provider.dart';
@@ -27,12 +27,16 @@ class _AsyncLock {
   }
 }
 
-/// 远程仓库解析器。
+/// 远程仓库解析器（实例类，构造注入 [GitRunner]）。
 /// 移动/桌面端：URL 自动克隆到缓存并增量更新；Web 等无 git 平台：抛友好错误。
+/// 经 `lib/di/git.dart` 装配；同 URL 串行锁为实例级（单例下等价进程级）。
+/// 纯路径推导 [repoNameFromUrl]/[cacheDirHintFor] 保持静态，无 IO 依赖。
 class RemoteRepoResolver {
-  static final Map<String, _AsyncLock> _locks = {};
-  static _AsyncLock _lockFor(String url) =>
-      _locks.putIfAbsent(url, () => _AsyncLock());
+  final GitRunner _runner;
+  RemoteRepoResolver(this._runner);
+
+  final Map<String, _AsyncLock> _locks = {};
+  _AsyncLock _lockFor(String url) => _locks.putIfAbsent(url, () => _AsyncLock());
 
   static Future<Directory> _cacheRoot() async {
     if (Platform.isWindows) {
@@ -86,6 +90,7 @@ class RemoteRepoResolver {
   }
 
   /// 仅展示用：同步拼出缓存路径（不触发 IO 检测）。
+  /// 纯路径推导，无 runner 依赖，保持静态。
   static Future<String> cacheDirHintFor(String url) async {
     if (!GitUrlDetector.isRemoteUrl(url)) return '';
     try {
@@ -96,13 +101,13 @@ class RemoteRepoResolver {
   }
 
   /// 是否为可用仓库目录：`rev-parse --git-dir` 成功即视为可用。
-  static Future<bool> isUsableRepoDir(Directory dir) async {
+  Future<bool> isUsableRepoDir(Directory dir) async {
     if (!await dir.exists()) return false;
-    final r = await gitRunner.run(dir.path, ['rev-parse', '--git-dir']);
+    final r = await _runner.run(dir.path, ['rev-parse', '--git-dir']);
     return r.ok;
   }
 
-  static Future<void> _deleteDirRobust(Directory dir, AppLang lang) async {
+  Future<void> _deleteDirRobust(Directory dir, AppLang lang) async {
     if (!await dir.exists()) return;
     try {
       await for (final e in dir.list(recursive: true, followLinks: false)) {
@@ -128,13 +133,13 @@ class RemoteRepoResolver {
     }
   }
 
-  static Future<void> _cloneSmart(
+  Future<void> _cloneSmart(
     Directory target,
     String url,
     AppLang lang,
     void Function(String)? onProgress,
   ) async {
-    var r = await gitRunner.run(null, [
+    var r = await _runner.run(null, [
       'clone',
       '--filter=blob:none',
       '--progress',
@@ -145,7 +150,7 @@ class RemoteRepoResolver {
     await _deleteDirRobust(target, lang);
     // 部分托管不支持 filter，失败回退普通 clone。
     onProgress?.call(t(lang).filterFallback);
-    r = await gitRunner.run(null, [
+    r = await _runner.run(null, [
       'clone',
       '--progress',
       url,
@@ -154,18 +159,18 @@ class RemoteRepoResolver {
     if (!r.ok) throw Exception(r.stderr);
   }
 
-  static Future<void> _fetch(Directory repoDir, String url) async {
-    var r = await gitRunner.run(
+  Future<void> _fetch(Directory repoDir, String url) async {
+    var r = await _runner.run(
         repoDir.path, ['remote', 'set-url', 'origin', url]);
     if (!r.ok) throw Exception(r.stderr);
-    r = await gitRunner.run(
+    r = await _runner.run(
         repoDir.path, ['fetch', '--tags', '--prune', 'origin']);
     if (!r.ok) throw Exception(r.stderr);
-    await gitRunner.run(repoDir.path, ['merge', '--ff-only', 'FETCH_HEAD']);
+    await _runner.run(repoDir.path, ['merge', '--ff-only', 'FETCH_HEAD']);
   }
 
   /// 解析仓库路径：本地目录直接返回，远程 URL 走缓存克隆/增量更新。
-  static Future<Directory> resolve(
+  Future<Directory> resolve(
     String repoPath,
     AppLang lang, {
     bool fetchIfCached = true,
@@ -181,7 +186,7 @@ class RemoteRepoResolver {
       }
       return f;
     }
-    if (!supportsNativeGit) {
+    if (!_runner.supportsNativeGit) {
       throw Exception(tr.platformUnsupported('Web'));
     }
     final target = await cacheDirFor(trimmed);
@@ -218,10 +223,10 @@ class RemoteRepoResolver {
   }
 
   /// 是否已有本地缓存：裸仓看 HEAD，普通仓看 .git。
-  static Future<bool> isCached(String repoPath) async {
+  Future<bool> isCached(String repoPath) async {
     final trimmed = repoPath.trim();
     if (!GitUrlDetector.isRemoteUrl(trimmed)) return false;
-    if (!supportsNativeGit) return false;
+    if (!_runner.supportsNativeGit) return false;
     try {
       final dir = await cacheDirFor(trimmed);
       if (!await dir.exists()) return false;
@@ -233,7 +238,7 @@ class RemoteRepoResolver {
   }
 
   /// 计算实际生效的本地目录
-  static Future<String> resolveEffectiveDir(
+  Future<String> resolveEffectiveDir(
       String repoPath, String scope, AppLang lang) async {
     final base = repoPath.trim().isEmpty ? '.' : repoPath.trim();
     // 去 scope 前导斜杠，避免拼接出绝对路径。

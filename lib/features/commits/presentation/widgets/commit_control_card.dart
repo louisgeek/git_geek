@@ -98,8 +98,10 @@ class CommitControlCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
+                // 条数框要放得下 label 与清空按钮，且最多可填 4 位（上限 5000），
+                // 80px 会把 label 压到截断，这里给足宽度。
                 SizedBox(
-                  width: 80,
+                  width: _limitFieldWidth,
                   child: ClearableTextField(
                     value: cs.commitLimit,
                     onChanged: cn.setCommitLimit,
@@ -151,4 +153,7 @@ class CommitControlCard extends StatelessWidget {
       ),
     );
   }
+
+  /// 条数输入框宽度：容得下 label 文案 + 清空按钮 + 4 位数字。
+  static const double _limitFieldWidth = 112;
 }

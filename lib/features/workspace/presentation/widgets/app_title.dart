@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:git_geek/di/git.dart';
 import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/data/git_runner.dart';
 import 'package:git_geek/l10n/strings.dart';
 
 /// 应用标题栏：标题 + 语言切换 + 关于弹窗入口。
-class AppTitle extends StatelessWidget {
+class AppTitle extends ConsumerWidget {
   final AppLang lang;
   final AppLocalizations t;
   final ValueChanged<AppLang> onLangSelected;
@@ -17,7 +18,8 @@ class AppTitle extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final supportsNativeGit = ref.watch(supportsNativeGitProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

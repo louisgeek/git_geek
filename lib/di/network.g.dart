@@ -9,18 +9,18 @@ part of 'network.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Dio 装配：只负责 GitHub/GitLab 等 HTTP API，不替代本地 git CLI。
-/// 本地 git 操作继续走 gitRunner（Process）。
+/// 本地 git 操作走 `lib/di/git.dart` 的 gitRunnerProvider（Process）。
 
 @ProviderFor(dio)
 final dioProvider = DioProvider._();
 
 /// Dio 装配：只负责 GitHub/GitLab 等 HTTP API，不替代本地 git CLI。
-/// 本地 git 操作继续走 gitRunner（Process）。
+/// 本地 git 操作走 `lib/di/git.dart` 的 gitRunnerProvider（Process）。
 
 final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
     with $Provider<Dio> {
   /// Dio 装配：只负责 GitHub/GitLab 等 HTTP API，不替代本地 git CLI。
-  /// 本地 git 操作继续走 gitRunner（Process）。
+  /// 本地 git 操作走 `lib/di/git.dart` 的 gitRunnerProvider（Process）。
   DioProvider._()
     : super(
         from: null,

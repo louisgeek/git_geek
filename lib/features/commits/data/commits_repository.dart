@@ -6,17 +6,17 @@ import 'package:git_geek/l10n/strings.dart';
 import 'package:git_geek/models/git_commit.dart';
 import 'package:logger/logger.dart';
 
-/// Commits/branches/submodules 仓储：Notifier 只调这里，不直调 DataSource。
+/// Commits/branches/submodules 仓储
 /// 约定调用方先调 [resolveEffectiveDir] 一次拿到生效目录，再并行调各 fetch，
-/// 避免老 controller 里三次 resolve 触发三次 fetch --tags --prune。
-/// 装配见 `features/commits/di/providers.dart`。
+/// 避免三次 resolve 触发三次 fetch --tags --prune。
 class CommitsRepository {
   static const _tag = '[commits]';
 
-  final Logger _log;
   final GitCommitDataSource _dataSource;
+  final Logger _log;
+  final RemoteRepoResolver _resolver;
 
-  CommitsRepository(this._log, this._dataSource);
+  CommitsRepository(this._dataSource, this._log, this._resolver);
 
   /// 计算实际生效目录（含 scope），内部走 RemoteRepoResolver（带缓存/锁）。
   Future<Result<String>> resolveEffectiveDir(
@@ -26,7 +26,7 @@ class CommitsRepository {
   ) async {
     try {
       return Result.ok(
-        await RemoteRepoResolver.resolveEffectiveDir(repoPath, scope, lang),
+        await _resolver.resolveEffectiveDir(repoPath, scope, lang),
       );
     } catch (e, st) {
       _log.w(
@@ -41,7 +41,7 @@ class CommitsRepository {
   /// 远程 URL 且本地无缓存（首次会触发克隆，用于显示 cloning 提示）。
   Future<bool> isRemoteAndNotCached(String repoPath) async {
     if (!GitUrlDetector.isRemoteUrl(repoPath.trim())) return false;
-    return !(await RemoteRepoResolver.isCached(repoPath.trim()));
+    return !(await _resolver.isCached(repoPath.trim()));
   }
 
   /// 拉取提交列表。
@@ -104,6 +104,25 @@ class CommitsRepository {
     if (result case Err(:final message, :final cause, :final stackTrace)) {
       _log.w(
         '$_tag fetchRemoteUrl 失败 dir=$dir: $message',
+        error: cause,
+        stackTrace: stackTrace,
+      );
+    }
+    return result;
+  }
+
+  /// 拉取子模块最近若干条提交（参照面板用，轻量）。
+  Future<Result<List<GitCommit>>> fetchSubmoduleRecentCommits(
+    String dir,
+    String subPath,
+    int limit,
+    AppLang lang,
+  ) async {
+    final result =
+        await _dataSource.fetchSubmoduleRecentCommits(dir, subPath, limit, lang);
+    if (result case Err(:final message, :final cause, :final stackTrace)) {
+      _log.w(
+        '$_tag fetchSubmoduleRecentCommits 失败 $subPath: $message',
         error: cause,
         stackTrace: stackTrace,
       );

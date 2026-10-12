@@ -50,7 +50,7 @@ final class WorkspaceNotifierProvider
   }
 }
 
-String _$workspaceNotifierHash() => r'4a2c6c8555f19f8446a617a87c0247d21baf9d7b';
+String _$workspaceNotifierHash() => r'81684178ff7753d93f65dd48ab2af5b61f5f9807';
 
 /// 应用外壳协调器（原 GitTagController）：持有仓库配置 + tab/范围，
 /// tags 数据在 TagsNotifier，commits/branches/submodules 在 CommitsNotifier，

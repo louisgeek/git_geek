@@ -4,7 +4,7 @@ import 'package:git_geek/l10n/gen/app_localizations.dart';
 import 'package:git_geek/l10n/strings.dart';
 import 'package:git_geek/di/logging.dart';
 import 'package:git_geek/di/router.dart';
-import 'package:git_geek/di/storage.dart';
+import 'package:git_geek/core/storage/app_prefs.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_notifier.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

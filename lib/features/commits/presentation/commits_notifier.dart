@@ -119,6 +119,38 @@ class CommitsNotifier extends _$CommitsNotifier {
     }
   }
 
+  /// 各子模块最近提交（参照面板用）：并行逐个拉取，best-effort。
+  /// 刻意不进 [load] 主链，每个子模块只跑一条轻量 git log。
+  Future<void> loadSubmoduleLogs({
+    required String repoPath,
+    required int limit,
+    required AppLang lang,
+  }) async {
+    final subs = state.submodules;
+    if (subs.isEmpty) {
+      if (state.submoduleLogs.isNotEmpty || state.isLoadingSubmoduleLogs) {
+        state = state.copyWith(
+          submoduleLogs: const {},
+          isLoadingSubmoduleLogs: false,
+        );
+      }
+      return;
+    }
+    state = state.copyWith(isLoadingSubmoduleLogs: true);
+    // 未初始化的子库没有工作目录，拉 log 必然失败，直接跳过（面板显示为空）。
+    final pullable =
+        subs.where((e) => e.status != SubmoduleStatus.uninitialized).toList();
+    final results = await Future.wait(pullable.map((sub) async {
+      final r = await _repo.fetchSubmoduleRecentCommits(
+          repoPath, sub.path, limit, lang);
+      return MapEntry(sub.path, r.valueOrNull ?? const <GitCommit>[]);
+    }));
+    state = state.copyWith(
+      isLoadingSubmoduleLogs: false,
+      submoduleLogs: {for (final e in results) e.key: e.value},
+    );
+  }
+
   /// 子模块 + remoteUrl + 各子模块当前分支（用主仓 repoPath，与老行为一致）。
   Future<void> loadSubmodules({
     required String repoPath,

@@ -115,6 +115,46 @@ void main() {
     });
   });
 
+  group('Submodule log panel', () {
+    test('子库 log 解析出可参照的顺序与短 sha', () {
+      // 参照面板消费的字段：sha/author/date/subject，且必须保持 git log 的原始顺序。
+      const raw = '===COMMIT===\n'
+          'sha: aaa1111111111111111111111111111111111\n'
+          'parents: \n'
+          'author: louis\n'
+          'date: 2026-10-10 09:00\n'
+          'refs: HEAD -> main\n'
+          'subject: feat: 子库最新\n'
+          '===END===\n'
+          '===COMMIT===\n'
+          'sha: bbb2222222222222222222222222222222222\n'
+          'parents: aaa1111111111111111111111111111111111\n'
+          'author: amy\n'
+          'date: 2026-10-09 09:00\n'
+          'refs: \n'
+          'subject: fix: 更早一条\n'
+          '===END===\n';
+      final parsed = GitLogParser.parse(raw);
+      expect(parsed.length, 2);
+      // 顺序即 git log 顺序（最新在前），面板按此渲染便于肉眼对照。
+      expect(parsed.first.subject, 'feat: 子库最新');
+      expect(parsed.first.shortSha, 'aaa11111');
+      expect(parsed.first.date, '2026-10-10 09:00');
+      expect(parsed.last.author, 'amy');
+      expect(parsed.last.shortSha, 'bbb22222');
+    });
+
+    test('面板按 path 取对应子库记录，互不串号', () {
+      final logs = {
+        'pkg/a': [const GitCommit(sha: 'a1', subject: 'A newest')],
+        'pkg/b': [const GitCommit(sha: 'b1', subject: 'B newest')],
+      };
+      expect(logs['pkg/a']!.single.subject, 'A newest');
+      expect(logs['pkg/b']!.single.subject, 'B newest');
+      expect(logs['pkg/missing'], isNull);
+    });
+  });
+
   group('Merge drift', () {
     test('p2 推进被 merge 丢弃时标 silentlyDropped', () {
       // P1: pkg@aaa，P2: aaa->ccc，M 保留 aaa：p1 无 diff，p2 有 ccc->aaa。

@@ -58,4 +58,4 @@ final class CommitsRepositoryProvider
   }
 }
 
-String _$commitsRepositoryHash() => r'6e384436e8b931501b2aa512c9573f77afbea70a';
+String _$commitsRepositoryHash() => r'f20acf8d3057118bb1dd02e7dc2f696b4d3993be';

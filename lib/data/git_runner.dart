@@ -5,8 +5,7 @@ import 'package:git_geek/data/git_runner_stub.dart'
 
 export 'package:git_geek/data/git_runner_base.dart';
 
-/// 全局 git 执行器单例：仓库操作统一走本地 git CLI。
-final GitRunner gitRunner = impl.createRunner();
-
-/// 是否支持本地 git：桌面/移动为 true，Web 等无 git 平台为 false。
-bool get supportsNativeGit => gitRunner.supportsNativeGit;
+/// 按平台创建 git 执行器：桌面/移动走本地 git CLI，Web 等无 git 平台走空实现。
+/// 单例语义由 `lib/di/git.dart` 的 `gitRunnerProvider`（keepAlive）保证，
+/// 此处只保留无状态工厂，禁止再建全局单例。
+GitRunner createGitRunner() => impl.createRunner();
