@@ -770,6 +770,24 @@ abstract class AppLocalizations {
   /// **'Failed to read submodule branch'**
   String get submoduleBranchFail;
 
+  /// No description provided for @submoduleLogFail.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to read submodule commits'**
+  String get submoduleLogFail;
+
+  /// No description provided for @subLogPanelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Submodule recent commits'**
+  String get subLogPanelTitle;
+
+  /// No description provided for @subLogPanelEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No submodule commits'**
+  String get subLogPanelEmpty;
+
   /// No description provided for @dirName.
   ///
   /// In en, this message translates to:

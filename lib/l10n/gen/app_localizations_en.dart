@@ -367,6 +367,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submoduleBranchFail => 'Failed to read submodule branch';
 
   @override
+  String get submoduleLogFail => 'Failed to read submodule commits';
+
+  @override
+  String get subLogPanelTitle => 'Submodule recent commits';
+
+  @override
+  String get subLogPanelEmpty => 'No submodule commits';
+
+  @override
   String get dirName => 'dir';
 
   @override

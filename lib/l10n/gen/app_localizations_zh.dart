@@ -361,6 +361,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get submoduleBranchFail => '读取子模块分支失败';
 
   @override
+  String get submoduleLogFail => '读取子模块提交失败';
+
+  @override
+  String get subLogPanelTitle => '子库最近记录';
+
+  @override
+  String get subLogPanelEmpty => '暂无子库记录';
+
+  @override
   String get dirName => '目录';
 
   @override
@@ -755,6 +764,15 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
   String get submoduleBranchFail => '讀取子模組分支失敗';
 
   @override
+  String get submoduleLogFail => '讀取子模組提交失敗';
+
+  @override
+  String get subLogPanelTitle => '子庫最近記錄';
+
+  @override
+  String get subLogPanelEmpty => '暫無子庫記錄';
+
+  @override
   String get dirName => '目錄';
 
   @override
@@ -1147,6 +1165,15 @@ class AppLocalizationsZhHantHk extends AppLocalizationsZh {
 
   @override
   String get submoduleBranchFail => '載入子模組分支失敗';
+
+  @override
+  String get submoduleLogFail => '載入子模組提交失敗';
+
+  @override
+  String get subLogPanelTitle => '子庫最近記錄';
+
+  @override
+  String get subLogPanelEmpty => '暫無子庫記錄';
 
   @override
   String get dirName => '目錄';
