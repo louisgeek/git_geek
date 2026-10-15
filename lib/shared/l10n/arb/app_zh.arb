@@ -125,5 +125,6 @@
   "subUninitialized": "未初始化",
   "subModified": "有改动",
   "subConflict": "冲突",
-  "aboutTitle": "关于 GitGeek"
+  "aboutTitle": "关于 GitGeek",
+  "str_app_version_available": "版本 {version} 可用"
 }

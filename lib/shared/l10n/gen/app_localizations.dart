@@ -859,6 +859,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Conflict'**
   String get subConflict;
+
+  /// No description provided for @str_app_version_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is available'**
+  String str_app_version_available(String version);
 }
 
 class _AppLocalizationsDelegate

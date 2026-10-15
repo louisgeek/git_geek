@@ -406,6 +406,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get subConflict => '冲突';
+
+  @override
+  String str_app_version_available(String version) {
+    return '版本 $version 可用';
+  }
 }
 
 /// The translations for Chinese, using the Han script (`zh_Hant`).
@@ -809,6 +814,11 @@ class AppLocalizationsZhHant extends AppLocalizationsZh {
 
   @override
   String get subConflict => '衝突';
+
+  @override
+  String str_app_version_available(String version) {
+    return '版本 $version 可用';
+  }
 }
 
 /// The translations for Chinese, as used in Hong Kong, using the Han script (`zh_Hant_HK`).
@@ -1212,4 +1222,9 @@ class AppLocalizationsZhHantHk extends AppLocalizationsZh {
 
   @override
   String get subConflict => '衝突';
+
+  @override
+  String str_app_version_available(String version) {
+    return '版本 $version 可用';
+  }
 }

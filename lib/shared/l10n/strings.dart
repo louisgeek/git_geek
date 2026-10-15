@@ -1,8 +1,9 @@
-// 语言枚举 + 无 context 场景的 l10n 访问（文案源为 lib/l10n/*.arb，gen_l10n 生成）
+// 语言枚举 + 无 context 场景的 l10n 访问（文案源为 lib/shared/l10n/*.arb，gen_l10n 生成）
 library;
 
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
+import 'package:git_geek/core/git/git_messages.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
 
 /// 支持的界面语言：简体、繁体（台湾/香港桶）、英文。
 enum AppLang {
@@ -67,3 +68,20 @@ const String appVersion = '1.0';
 /// 无 BuildContext 场景（data 层/Notifer）取文案：直接 lookup 生成类
 AppLocalizations t(AppLang lang) =>
     lookupAppLocalizations(Locale(lang.code));
+
+/// AppLang 一键备好 git 层所需的文案包：core/git 只收字符串，不读 l10n。
+extension AppLangGitMessagesX on AppLang {
+  GitMessages get gitMessages {
+    final tr = t(this);
+    return GitMessages(
+      cacheCleanFail: tr.cacheCleanFail,
+      filterFallback: tr.filterFallback,
+      dirNotExist: tr.dirNotExist,
+      platformUnsupported: tr.platformUnsupported('Web'),
+      updatingCache: tr.updatingCache,
+      updateStaleCache: tr.updateStaleCache,
+      cloningCache: tr.cloningCache,
+      cloneUnusable: tr.cloneUnusable,
+    );
+  }
+}

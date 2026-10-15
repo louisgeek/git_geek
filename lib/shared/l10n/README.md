@@ -5,20 +5,22 @@
 ## 目录结构
 
 ```
-lib/l10n/
-  app_en.arb          # 手写源：key 清单 + @key 元数据（模板，占位符/类型声明都在这）
-  app_zh.arb          # 手写源：key → 简体中文（只写值，不写元数据）
-  app_zh_Hant.arb     # 手写源：key → 繁體中文（臺灣用詞）
-  app_zh_Hant_HK.arb  # 手写源：key → 繁體中文（香港用詞）
+lib/shared/l10n/
+  arb/
+    app_en.arb        # 手写源：key 清单 + @key 元数据（模板，占位符/类型声明都在这）
+    app_zh.arb        # 手写源：key → 简体中文（只写值，不写元数据）
+    app_zh_Hant.arb   # 手写源：key → 繁體中文（臺灣用詞）
+    app_zh_Hant_HK.arb# 手写源：key → 繁體中文（香港用詞）
+    inbox.json        # 翻译收件箱：人工只写这个（管线维护，见 pipeline/）
   gen/                # flutter gen-l10n 生成产物，禁止手改
     app_localizations.dart       # 抽象类 + delegate + lookupAppLocalizations
     app_localizations_en.dart
     app_localizations_zh.dart    # 含 Zh / ZhHant / ZhHantHk 三个实现类（按语言分组）
 ```
 
-- `l10n.yaml` 为工具配置（`template-arb-file: app_en.arb`，`output-dir: lib/l10n/gen`）
+- `l10n.yaml` 为工具配置（`template-arb-file: app_en.arb`，`output-dir: lib/shared/l10n/gen`）
 - en 是模板语言：基语言缺 key 时回退英文；地区变体缺 key 时继承同 language 基类
-- 生成文件 import 路径统一为 `package:git_geek/l10n/gen/app_localizations.dart`
+- 生成文件 import 路径统一为 `package:git_geek/shared/l10n/gen/app_localizations.dart`
 
 ## ARB 文件名格式
 

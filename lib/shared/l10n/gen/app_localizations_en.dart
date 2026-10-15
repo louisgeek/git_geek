@@ -414,4 +414,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get subConflict => 'Conflict';
+
+  @override
+  String str_app_version_available(String version) {
+    return 'Version $version is available';
+  }
 }

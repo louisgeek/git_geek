@@ -188,5 +188,13 @@
   },
   "subUninitialized": "Uninitialized",
   "subModified": "Modified",
-  "subConflict": "Conflict"
+  "subConflict": "Conflict",
+  "str_app_version_available": "Version {version} is available",
+  "@str_app_version_available": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
 }
