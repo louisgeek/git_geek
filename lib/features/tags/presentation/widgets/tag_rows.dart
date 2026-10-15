@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 
 /// Tag 行组件（原 GitTagPage 同名类，原样迁移）。
 /// 另删掉了 `CompareRow.lang`：该字段存了但 build 里从没用过。

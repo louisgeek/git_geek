@@ -1,0 +1,25 @@
+﻿term,zh-Hans,zh-Hant-TW,zh-Hant-HK,ja,de,forbidden,note
+refresh,刷新,重新整理,重新載入,更新,aktualisieren,zh-Hans:重新載入;zh-Hans:重新整理;zh-Hant-TW:重新載入;zh-Hant-HK:重新整理,台港用词不同勿互串；简中不用「重新整理/載入」；fetch 语境台用「重新整理」港用「重新載入」
+load,读取,讀取,載入,読み込む,laden,zh-Hans:載入;zh-Hans:讀取;zh-Hant-TW:載入;zh-Hant-HK:讀取,动词：简中统一用「读取」，港台分别用讀取/載入，且不互串
+fetch,拉取,拉取,提取,取得,abrufen,zh-Hant-HK:拉取,港用「提取」不用「拉取」
+limit,条数,筆數,項數,件数,Anzahl,,同一个 en 源在两档用不同量词属合理地区差异
+sample,示例,範例,示例,サンプル,Beispiel,zh-Hant-TW:示例;zh-Hant-HK:範例,台用範例港用示例（贴近大陆习惯）
+repository,仓库,儲存庫,儲存庫,リポジトリ,Repository,zh-Hant:倉庫,勿用「仓库」（港台不自然）
+clone,克隆,複製,複製,クローン,klonen,zh-Hans:复制,勿用「复制」
+address,地址,位址,位址,アドレス,Adresse,zh-Hant:地址,港台用「位址」
+tap,点击,點擊,按,タップ,tippen,zh-Hant-HK:點,港用「按」不用「點」
+check,检查,檢查,檢查,チェック,prüfen,,,
+commit,提交,提交,提交,コミット,Commit,,git 术语保留原样
+submodule,子模块,子模組,子模組,サブモジュール,Submodul,zh-Hans:子模组,,
+sha,sha,sha,sha,sha,SHA,,技术标识符保留原样不翻译
+tag,tag,tag,tag,タグ,Tag,zh-Hant:標簽,泛指概念译「标签」，具体 git tag 保留原文
+url,URL,URL,URL,URL,URL,,技术标识符保留原样
+cache,缓存,快取,快取,キャッシュ,Cache,zh-Hant:緩存,,
+error,错误,錯誤,錯誤,エラー,Fehler,zh-Hans:錯誤,,
+warning,警告,警告,警告,警告,Warnung,,,
+success,成功,成功,成功,成功,Erfolg,,,
+remote,远程,遠端,遠端,リモート,Remote,,
+local,本地,本地,本地,ローカル,lokal,,
+sync,同步,同步,同步,同期,Synchronisieren,,,
+missing,缺失,缺失,缺失,欠落,fehlend,,,
+diverged,不一致,不一致,不一致,乖離,abweichend,,,

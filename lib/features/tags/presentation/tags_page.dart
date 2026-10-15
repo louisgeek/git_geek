@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/core/widgets/clipboard.dart';
-import 'package:git_geek/di/git.dart';
-import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
+import 'package:git_geek/shared/l10n/l10n_extensions.dart';
+import 'package:git_geek/core/navigation/routes.dart';
+import 'package:git_geek/core/git/git_providers.dart';
 import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
 import 'package:git_geek/features/tags/presentation/widgets/tag_lists.dart';
 import 'package:git_geek/features/tags/presentation/widgets/tag_search_sort.dart';
 import 'package:git_geek/features/tags/presentation/widgets/tag_stats.dart';
-import 'package:git_geek/features/workspace/presentation/widgets/app_nav_bar.dart';
 import 'package:git_geek/features/workspace/presentation/widgets/app_title.dart';
 import 'package:git_geek/features/workspace/presentation/widgets/repo_card.dart';
 import 'package:git_geek/features/workspace/presentation/widgets/unsupported_card.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_notifier.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 
 /// Tags 页（路由 /tags）：标题 + 仓库卡 + 统计 + 搜索排序 + 对比/本地/远端内页签。
+/// 底部导航由 MainShellPage 统一提供，这里只管内容。
 class TagsPage extends ConsumerStatefulWidget {
   const TagsPage({super.key});
 
@@ -42,8 +42,7 @@ class _TagsPageState extends ConsumerState<TagsPage> {
   Widget build(BuildContext context) {
     final ui = ref.watch(workspaceProvider);
     final tags = ref.watch(tagsProvider);
-    final cs = ref.watch(commitsProvider);
-    final t = AppLocalizations.of(context);
+    final t = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -61,14 +60,7 @@ class _TagsPageState extends ConsumerState<TagsPage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
                 children: [
-                  RepoCard(
-                    ui: ui,
-                    tags: tags,
-                    cs: cs,
-                    t: t,
-                    vm: vm,
-                    onCopy: (v) => copyAndNotify(context, v, t.copied),
-                  ),
+                  const RepoCard(),
                   const SizedBox(height: 12),
                   TagStats(tags: tags, t: t),
                   const SizedBox(height: 12),
@@ -88,7 +80,7 @@ class _TagsPageState extends ConsumerState<TagsPage> {
                     onToggleExpand: toggleExpand,
                     onViewCommit: (item) {
                       vm.viewCommitForTag(item);
-                      context.go('/commits');
+                      context.go(AppRoutes.commits);
                     },
                   ),
                   const SizedBox(height: 12),
@@ -100,13 +92,6 @@ class _TagsPageState extends ConsumerState<TagsPage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: AppNavBar(
-        currentIndex: 0,
-        t: t,
-        onTap: (i) {
-          if (i == 1) context.go('/commits');
-        },
       ),
     );
   }

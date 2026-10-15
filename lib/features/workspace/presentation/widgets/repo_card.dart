@@ -1,35 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/core/widgets/clearable_text_field.dart';
-import 'package:git_geek/data/git_url.dart';
-import 'package:git_geek/features/commits/presentation/commits_state.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
+import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/shared/l10n/l10n_extensions.dart';
+import 'package:git_geek/shared/widgets/clearable_text_field.dart';
+import 'package:git_geek/shared/widgets/clipboard.dart';
+import 'package:git_geek/core/git/git_url.dart';
+import 'package:git_geek/features/commits/presentation/commits_state.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_notifier.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_state.dart';
-import 'package:git_geek/models/git_commit.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
 
 /// 仓库配置卡（原 GitTagPage._buildRepoCard，原样迁移仅换调用方式）：
-/// 读 workspace/tags/commits 三份 state，动作走 [vm]，复制走 [onCopy]。
-class RepoCard extends StatelessWidget {
-  final WorkspaceState ui;
-  final TagsState tags;
-  final CommitsState cs;
-  final AppLocalizations t;
-  final WorkspaceNotifier vm;
-  final ValueChanged<String> onCopy;
-
-  const RepoCard({
-    super.key,
-    required this.ui,
-    required this.tags,
-    required this.cs,
-    required this.t,
-    required this.vm,
-    required this.onCopy,
-  });
+/// 自己 watch workspace/tags/commits 三份 state，调用方只管摆位（`const RepoCard()`）。
+class RepoCard extends ConsumerWidget {
+  const RepoCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final WorkspaceState ui = ref.watch(workspaceProvider);
+    final tags = ref.watch(tagsProvider);
+    final CommitsState cs = ref.watch(commitsProvider);
+    final AppLocalizations t = context.l10n;
+    final WorkspaceNotifier vm = ref.read(workspaceProvider.notifier);
+    void onCopy(String v) => copyAndNotify(context, v, t.copied);
     return Card.outlined(
       child: Padding(
         padding: const EdgeInsets.all(12),

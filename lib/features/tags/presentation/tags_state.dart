@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:git_geek/logic/semver.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/features/tags/domain/semver.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 
 part 'tags_state.freezed.dart';
 

@@ -1,0 +1,44 @@
+# 管线接线配置：源在哪 → 产物去哪 → 增量基线在哪
+#
+# 回答「开发人员写待翻译内容在哪」：
+#   下面 source.path 指向的文件，就是开发者唯一需要写的文件。
+#   加一条新文案：python -m pipeline new --key xxx --text "..."
+#   跑完整管线：python -m pipeline run   （不需要再传路径和语言）
+#
+# 本文件是「接线配置」，不含翻译知识。
+# 翻译知识在 brief.yaml（项目描述）与 glossary.csv（术语表）里。
+
+source:
+  # 待翻译源：开发者只写这个文件，单 en 源
+  path: ../lib/shared/l10n/arb/app_en.arb
+  format: arb                # arb | json | csv | po | md
+  locale: en
+  description: Flutter ARB 模板语言文件，key 清单 + @key 元数据
+
+output:
+  # 产物目录与命名模板
+  dir: ../lib/shared/l10n/arb
+  template: app_{locale}.arb
+  # locale → 文件名片段的映射。
+  # 必须沿用宿主工程既有的文件命名，而不是直接用 BCP-47 标签 ——
+  # 否则管线会写出 app_zh-Hans.arb 这类工程里不存在的文件，
+  # 凭空多一套产物且 gen_l10n 不会加载。
+  file_map:
+    zh-Hans: zh
+    zh-Hant-TW: zh_Hant
+    zh-Hant-HK: zh_Hant_HK
+  # 增量基线：记录上次翻译到哪、术语表/brief 当时是哪个版本。
+  # 这是机器本地产物，放在管线自己的 cache 下，不与人工可读文件混在一起。
+  baseline_dir: ../pipeline/.cache/baseline
+
+# 目标语言。产物为 output.dir 下的 app_<locale>.arb
+locales:
+  - zh-Hans
+  - zh-Hant-TW
+  - zh-Hant-HK
+
+# 翻译后端：mock（离线，仅验证链路）| openai（真实模型）
+provider: dictionary
+
+# 翻译记忆库：跨批次复用人工审核通过的译文。机器本地产物。
+tm: ../pipeline/.cache/tm.json

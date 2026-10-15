@@ -1,9 +1,9 @@
-import 'package:git_geek/core/result.dart';
+import 'package:git_geek/core/error/result.dart';
 import 'package:git_geek/features/commits/data/commits_repository.dart';
-import 'package:git_geek/features/commits/di/providers.dart';
+import 'package:git_geek/features/commits/commits_providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
-import 'package:git_geek/l10n/strings.dart';
-import 'package:git_geek/models/git_commit.dart';
+import 'package:git_geek/shared/l10n/strings.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'commits_notifier.g.dart';
@@ -99,18 +99,18 @@ class CommitsNotifier extends _$CommitsNotifier {
   }) async {
     state = state.copyWith(isLoadingBranches: true, branchError: null);
     switch (await _repo.resolveEffectiveDir(repoPath, scope, lang)) {
-      case Err(:final message):
+      case Failure(:final message):
         state = state.copyWith(
           isLoadingBranches: false,
           branchError: message,
         );
         return;
-      case Ok(value: final dir):
+      case Success(value: final dir):
         switch (await _repo.fetchBranches(dir, lang)) {
-          case Ok(value: final branches):
+          case Success(value: final branches):
             state = state.copyWith(
                 isLoadingBranches: false, branches: branches);
-          case Err(:final message):
+          case Failure(:final message):
             state = state.copyWith(
               isLoadingBranches: false,
               branchError: message,
@@ -159,12 +159,12 @@ class CommitsNotifier extends _$CommitsNotifier {
     state = state.copyWith(
         isLoadingSubmodules: true, submoduleError: null);
     switch (await _repo.fetchSubmodules(repoPath, lang)) {
-      case Err(:final message):
+      case Failure(:final message):
         state = state.copyWith(
           isLoadingSubmodules: false,
           submoduleError: message,
         );
-      case Ok(value: final subs):
+      case Success(value: final subs):
         final scope = state.scope;
         final valid = scope.isEmpty || subs.any((e) => e.path == scope);
         state = state.copyWith(

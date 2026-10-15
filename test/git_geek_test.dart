@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:git_geek/data/git_commit_source.dart';
-import 'package:git_geek/logic/git_log_parser.dart';
-import 'package:git_geek/logic/git_tag_parser.dart';
-import 'package:git_geek/logic/semver.dart';
-import 'package:git_geek/models/git_commit.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/features/commits/data/sources/git_commit_source.dart';
+import 'package:git_geek/features/commits/data/sources/git_log_parser.dart';
+import 'package:git_geek/features/tags/data/sources/git_tag_parser.dart';
+import 'package:git_geek/features/tags/domain/semver.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 
 void main() {
   group('GitTagParser', () {

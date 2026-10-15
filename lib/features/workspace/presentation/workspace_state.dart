@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:git_geek/l10n/strings.dart';
+import 'package:git_geek/shared/l10n/strings.dart';
 
 part 'workspace_state.freezed.dart';
 

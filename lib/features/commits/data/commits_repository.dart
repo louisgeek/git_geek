@@ -1,9 +1,9 @@
-import 'package:git_geek/core/result.dart';
-import 'package:git_geek/data/git_commit_source.dart';
-import 'package:git_geek/data/git_url.dart';
-import 'package:git_geek/data/remote_repo.dart';
-import 'package:git_geek/l10n/strings.dart';
-import 'package:git_geek/models/git_commit.dart';
+import 'package:git_geek/core/error/result.dart';
+import 'package:git_geek/features/commits/data/sources/git_commit_source.dart';
+import 'package:git_geek/core/git/git_url.dart';
+import 'package:git_geek/core/git/remote_repo.dart';
+import 'package:git_geek/shared/l10n/strings.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
 import 'package:logger/logger.dart';
 
 /// Commits/branches/submodules 仓储
@@ -25,8 +25,8 @@ class CommitsRepository {
     AppLang lang,
   ) async {
     try {
-      return Result.ok(
-        await _resolver.resolveEffectiveDir(repoPath, scope, lang),
+      return Result.success(
+        await _resolver.resolveEffectiveDir(repoPath, scope, lang.gitMessages),
       );
     } catch (e, st) {
       _log.w(
@@ -34,7 +34,7 @@ class CommitsRepository {
         error: e,
         stackTrace: st,
       );
-      return Result.err(cleanError(e), cause: e, stackTrace: st);
+      return Result.failure(cleanError(e), cause: e, stackTrace: st);
     }
   }
 
@@ -52,7 +52,7 @@ class CommitsRepository {
     AppLang lang,
   ) async {
     final result = await _dataSource.fetchCommits(dir, branch, limit, lang);
-    if (result case Err(:final message, :final cause, :final stackTrace)) {
+    if (result case Failure(:final message, :final cause, :final stackTrace)) {
       _log.w(
         '$_tag fetchCommits 失败 dir=$dir: $message',
         error: cause,
@@ -68,7 +68,7 @@ class CommitsRepository {
     AppLang lang,
   ) async {
     final result = await _dataSource.fetchBranches(dir, lang);
-    if (result case Err(:final message, :final cause, :final stackTrace)) {
+    if (result case Failure(:final message, :final cause, :final stackTrace)) {
       _log.w(
         '$_tag fetchBranches 失败 dir=$dir: $message',
         error: cause,
@@ -84,7 +84,7 @@ class CommitsRepository {
     AppLang lang,
   ) async {
     final result = await _dataSource.fetchSubmodules(dir, lang);
-    if (result case Err(:final message, :final cause, :final stackTrace)) {
+    if (result case Failure(:final message, :final cause, :final stackTrace)) {
       _log.w(
         '$_tag fetchSubmodules 失败 dir=$dir: $message',
         error: cause,
@@ -101,7 +101,7 @@ class CommitsRepository {
     AppLang lang,
   ) async {
     final result = await _dataSource.fetchRemoteUrl(dir, remote, lang);
-    if (result case Err(:final message, :final cause, :final stackTrace)) {
+    if (result case Failure(:final message, :final cause, :final stackTrace)) {
       _log.w(
         '$_tag fetchRemoteUrl 失败 dir=$dir: $message',
         error: cause,
@@ -120,7 +120,7 @@ class CommitsRepository {
   ) async {
     final result =
         await _dataSource.fetchSubmoduleRecentCommits(dir, subPath, limit, lang);
-    if (result case Err(:final message, :final cause, :final stackTrace)) {
+    if (result case Failure(:final message, :final cause, :final stackTrace)) {
       _log.w(
         '$_tag fetchSubmoduleRecentCommits 失败 $subPath: $message',
         error: cause,
@@ -137,7 +137,7 @@ class CommitsRepository {
     AppLang lang,
   ) async {
     final result = await _dataSource.fetchSubmoduleBranch(dir, subPath, lang);
-    if (result case Err(:final message, :final cause, :final stackTrace)) {
+    if (result case Failure(:final message, :final cause, :final stackTrace)) {
       _log.w(
         '$_tag fetchSubmoduleBranch 失败 $subPath: $message',
         error: cause,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/models/git_commit.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
 
 /// 子库最近记录参照面板（纯展示）。
 ///

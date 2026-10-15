@@ -50,7 +50,7 @@ final class CommitsNotifierProvider
   }
 }
 
-String _$commitsNotifierHash() => r'e8b833e03ed639ffb2133424f0e4738e3579aac4';
+String _$commitsNotifierHash() => r'39b0ac7ece2c9b3f89071ea0488208ba41d3d21a';
 
 /// Commits 子 Notifier（新架构）：唯一持有 commits/branches/submodules +
 /// 查询/排序/limit + 各自 loading/error。调用方传 repoPath/scope/remote/lang，

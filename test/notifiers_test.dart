@@ -1,21 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:git_geek/core/result.dart';
+import 'package:git_geek/core/error/result.dart';
 import 'package:git_geek/core/storage/database.dart';
-import 'package:git_geek/data/git_commit_source.dart';
-import 'package:git_geek/data/git_runner_stub.dart';
-import 'package:git_geek/data/git_tag_source.dart';
-import 'package:git_geek/data/remote_repo.dart';
+import 'package:git_geek/features/commits/data/sources/git_commit_source.dart';
+import 'package:git_geek/core/git/git_runner_stub.dart';
+import 'package:git_geek/features/tags/data/sources/git_tag_source.dart';
+import 'package:git_geek/core/git/remote_repo.dart';
 import 'package:git_geek/features/commits/data/commits_repository.dart';
-import 'package:git_geek/features/commits/di/providers.dart';
+import 'package:git_geek/features/commits/commits_providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
 import 'package:git_geek/features/tags/data/tags_repository.dart';
-import 'package:git_geek/features/tags/di/providers.dart';
+import 'package:git_geek/features/tags/tags_providers.dart';
 import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
-import 'package:git_geek/l10n/strings.dart';
-import 'package:git_geek/models/git_commit.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/shared/l10n/strings.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 import 'package:logger/logger.dart';
 
 // 不碰真实 git：fake 仓储直接返回固定数据。
@@ -30,12 +30,12 @@ class FakeTagsRepository extends TagsRepository {
   @override
   Future<Result<String>> resolveDir(
           String repoPath, String scope, AppLang lang) async =>
-      const Result.ok('.');
+      const Result.success('.');
 
   @override
   Future<Result<List<GitTag>>> fetchLocalTags(
           String dir, AppLang lang) async =>
-      const Result.ok([
+      const Result.success([
         GitTag(name: 'v1.0.0', commitSha: 'aaa'),
         GitTag(name: 'v2.0.0'),
       ]);
@@ -43,7 +43,7 @@ class FakeTagsRepository extends TagsRepository {
   @override
   Future<Result<List<GitTag>>> fetchRemoteTags(
           String dir, String remote, AppLang lang) async =>
-      const Result.ok([
+      const Result.success([
         GitTag(name: 'v1.0.0', commitSha: 'aaa', source: TagSource.remote),
       ]);
 }
@@ -53,7 +53,7 @@ class FailingRemoteTagsRepository extends FakeTagsRepository {
   @override
   Future<Result<List<GitTag>>> fetchRemoteTags(
           String dir, String remote, AppLang lang) async =>
-      const Result.err('network down');
+      const Result.failure('network down');
 
   @override
   Future<List<GitTag>> cachedRemoteTags(
@@ -76,7 +76,7 @@ class FakeCommitsRepository extends CommitsRepository {
   @override
   Future<Result<String>> resolveEffectiveDir(
           String repoPath, String scope, AppLang lang) async =>
-      const Result.ok('.');
+      const Result.success('.');
 
   @override
   Future<bool> isRemoteAndNotCached(String repoPath) async => false;
@@ -84,7 +84,7 @@ class FakeCommitsRepository extends CommitsRepository {
   @override
   Future<Result<List<GitCommit>>> fetchCommits(
           String dir, String branch, int limit, AppLang lang) async =>
-      const Result.ok([
+      const Result.success([
         GitCommit(
           sha: 'newsha',
           parents: ['basesha'],
@@ -104,22 +104,22 @@ class FakeCommitsRepository extends CommitsRepository {
   @override
   Future<Result<List<GitBranch>>> fetchBranches(
           String dir, AppLang lang) async =>
-      const Result.ok([GitBranch(name: 'main', isCurrent: true)]);
+      const Result.success([GitBranch(name: 'main', isCurrent: true)]);
 
   @override
   Future<Result<List<GitSubmodule>>> fetchSubmodules(
           String dir, AppLang lang) async =>
-      const Result.ok([GitSubmodule(path: 'pkg', sha: 's1')]);
+      const Result.success([GitSubmodule(path: 'pkg', sha: 's1')]);
 
   @override
   Future<Result<String>> fetchRemoteUrl(
           String dir, String remote, AppLang lang) async =>
-      const Result.ok('https://example.com/r.git');
+      const Result.success('https://example.com/r.git');
 
   @override
   Future<Result<String>> fetchSubmoduleBranch(
           String dir, String subPath, AppLang lang) async =>
-      const Result.ok('main');
+      const Result.success('main');
 }
 
 void main() {

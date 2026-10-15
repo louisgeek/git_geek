@@ -1,0 +1,56 @@
+# 项目描述：管线的一等输入
+# 被 assemble 阶段消费（注入 prompt），被 qa 阶段消费（长度上限 / 禁忌短语）
+# 注意：修改本文件会改变 brief.version，触发全量重翻。
+
+product: Git 仓库 tag / commit / 子模块对比工具
+audience: 开发者，桌面端为主，兼顾移动端浏览
+tone: 简洁、术语精确、不用感叹号、不用营销语
+
+notes: |
+  - 这是工具类软件，不是消费级产品，文案以信息传达为主
+  - git 专有名词（tag、commit、push、fetch、merge、submodule）保留英文原文
+  - 中文文案长度尽量短，UI 控件上尤其要短
+
+# 全局约束：以下几条是机械可查的，进 QA 闸门
+constraints:
+  max_length_cjk: 24
+  forbidden:
+    - 请稍候
+    - 哦豁
+    - 亲
+    - 小伙伴
+
+# 各目标语言的地区用词规则：注入 prompt，指导模型选词
+per_locale:
+  zh-Hans:
+    fallback: en
+    rules:
+      - 用词：刷新 / 数据 / 标签 / 仓库 / 克隆
+      - 标点用全角（，。：；），技术标识如 URL、tag 用半角
+
+  zh-Hant-TW:
+    fallback: en
+    rules:
+      - 用词：重新整理（不用「重新載入」）/ 資料 / 標籤 / 儲存庫 / 複製
+      - 量词用「筆數」「項數」按语境选择，不用「條數」计数 UI 条目
+      - 标点用全角，术语表 forbidden 列已登记禁用译法
+
+  zh-Hant-HK:
+    fallback: en
+    rules:
+      - 用词：重新載入 / 資料 / 標籤 / 儲存庫 / 複製
+      - 用「提取」不用「拉取」（fetch 语境）
+      - 「位址」不用「地址」；量词用「項數」
+      - 动词用「按」不用「點」（对应 tap）
+
+  ja:
+    fallback: en
+    rules:
+      - 简体会 + 敬体，终端按钮用「〜する」或名词短语
+      - 保持占位符原样
+
+  de:
+    fallback: en
+    rules:
+      - 正式语气，名词化偏好，适合长文案
+      - 保持占位符原样

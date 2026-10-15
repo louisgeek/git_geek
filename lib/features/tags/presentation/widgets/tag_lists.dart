@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/core/widgets/empty_hint.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/shared/widgets/empty_hint.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
 import 'package:git_geek/features/tags/presentation/widgets/tag_rows.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 
 /// Tag 三个列表（原 GitTagPage._buildList 的 case 0/1/2，原样迁移仅换调用方式）。
 /// 展开态由调用方持有 [expandedNames] + [onToggleExpand]（key 规则不变）；

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:git_geek/main.dart';
+import 'package:git_geek/app/app.dart';
 import 'package:git_geek/core/storage/app_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

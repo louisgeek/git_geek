@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/models/git_commit.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
 
 /// 提交行组件（原 GitTagPage 同名类，原样迁移）。
 /// 可点击复制的短 sha。

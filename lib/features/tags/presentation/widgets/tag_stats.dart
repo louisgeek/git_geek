@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
 
 /// Tag 同步统计条（原 GitTagPage._buildStats，原样迁移仅换调用方式）。

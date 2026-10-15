@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/core/widgets/clearable_text_field.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/shared/widgets/clearable_text_field.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
 

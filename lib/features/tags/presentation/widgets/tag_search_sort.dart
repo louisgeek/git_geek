@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/core/widgets/clearable_text_field.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/shared/widgets/clearable_text_field.dart';
 import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 
 /// Tag 搜索 + 排序 + 过滤条（原 GitTagPage._buildSearchSort，原样迁移仅换调用方式）。
 /// 查询/排序/过滤动作走同 feature 的 [tn]。

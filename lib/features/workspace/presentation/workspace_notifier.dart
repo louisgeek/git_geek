@@ -1,12 +1,12 @@
 import 'package:git_geek/core/storage/app_prefs.dart';
-import 'package:git_geek/data/remote_repo.dart';
-import 'package:git_geek/di/git.dart';
+import 'package:git_geek/core/git/remote_repo.dart';
+import 'package:git_geek/core/git/git_providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_state.dart';
-import 'package:git_geek/l10n/strings.dart';
-import 'package:git_geek/models/git_commit.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/shared/l10n/strings.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'workspace_notifier.g.dart';

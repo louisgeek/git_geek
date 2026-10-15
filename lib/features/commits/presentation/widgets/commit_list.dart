@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/core/widgets/empty_hint.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/shared/widgets/empty_hint.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
 import 'package:git_geek/features/commits/presentation/widgets/commit_rows.dart';
 

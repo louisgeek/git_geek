@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:git_geek/models/git_commit.dart';
+import 'package:git_geek/features/commits/domain/git_commit.dart';
 
 part 'commits_state.freezed.dart';
 

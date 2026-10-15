@@ -1,14 +1,14 @@
-import 'package:git_geek/core/result.dart';
+import 'package:git_geek/core/error/result.dart';
 import 'package:git_geek/core/storage/database.dart';
-import 'package:git_geek/data/git_tag_source.dart';
-import 'package:git_geek/data/remote_repo.dart';
-import 'package:git_geek/l10n/strings.dart';
-import 'package:git_geek/models/git_tag.dart';
+import 'package:git_geek/features/tags/data/sources/git_tag_source.dart';
+import 'package:git_geek/core/git/remote_repo.dart';
+import 'package:git_geek/shared/l10n/strings.dart';
+import 'package:git_geek/features/tags/domain/git_tag.dart';
 import 'package:logger/logger.dart';
 
 /// Tags 仓储：Notifier 只调这里，不直调 DataSource / Sembast。
 /// 策略：本地 tags 走 git CLI 直读；远程 tags 写透 Sembast 做离线兜底。
-/// 装配见 `features/tags/di/providers.dart`。
+/// 装配见 `features/tags/tags_providers.dart`。
 class TagsRepository {
   final AppDatabase _db;
   final Logger _log;
@@ -24,12 +24,12 @@ class TagsRepository {
     AppLang lang,
   ) async {
     try {
-      return Result.ok(
-        await _resolver.resolveEffectiveDir(repoPath, scope, lang),
+      return Result.success(
+        await _resolver.resolveEffectiveDir(repoPath, scope, lang.gitMessages),
       );
     } catch (e, st) {
       _log.w('[tags] resolveDir 失败 $repoPath', error: e, stackTrace: st);
-      return Result.err(cleanError(e), cause: e, stackTrace: st);
+      return Result.failure(cleanError(e), cause: e, stackTrace: st);
     }
   }
 
@@ -64,7 +64,7 @@ class TagsRepository {
     } catch (e, st) {
       _log.w('remote tags 缓存写入失败，忽略不影响主流程', error: e, stackTrace: st);
     }
-    return Result.ok(tags);
+    return Result.success(tags);
   }
 
   /// 离线兜底：无网/git 失败时读缓存（过期按未命中处理）。

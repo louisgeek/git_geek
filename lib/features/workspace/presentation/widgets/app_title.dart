@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:git_geek/di/git.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/l10n/strings.dart';
+import 'package:git_geek/core/git/git_providers.dart';
+import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
+import 'package:git_geek/shared/l10n/strings.dart';
 
 /// 应用标题栏：标题 + 语言切换 + 关于弹窗入口。
 class AppTitle extends ConsumerWidget {

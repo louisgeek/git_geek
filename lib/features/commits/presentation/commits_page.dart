@@ -2,15 +2,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:git_geek/l10n/gen/app_localizations.dart';
-import 'package:git_geek/core/widgets/clipboard.dart';
-import 'package:git_geek/di/git.dart';
+import 'package:git_geek/shared/l10n/l10n_extensions.dart';
+import 'package:git_geek/core/navigation/routes.dart';
+import 'package:git_geek/shared/widgets/clipboard.dart';
+import 'package:git_geek/core/git/git_providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
 import 'package:git_geek/features/commits/presentation/widgets/commit_control_card.dart';
 import 'package:git_geek/features/commits/presentation/widgets/commit_list.dart';
 import 'package:git_geek/features/commits/presentation/widgets/submodule_log_panel.dart';
-import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
-import 'package:git_geek/features/workspace/presentation/widgets/app_nav_bar.dart';
 import 'package:git_geek/features/workspace/presentation/widgets/app_title.dart';
 import 'package:git_geek/features/workspace/presentation/widgets/repo_card.dart';
 import 'package:git_geek/features/workspace/presentation/widgets/unsupported_card.dart';
@@ -18,6 +17,7 @@ import 'package:git_geek/features/workspace/presentation/workspace_notifier.dart
 import 'package:go_router/go_router.dart';
 
 /// Commits 页（路由 /commits）：标题 + 仓库卡 + 提交控制 + 提交列表。
+/// 底部导航由 MainShellPage 统一提供，这里只管内容。
 class CommitsPage extends ConsumerStatefulWidget {
   const CommitsPage({super.key});
 
@@ -74,9 +74,8 @@ class _CommitsPageState extends ConsumerState<CommitsPage> {
   @override
   Widget build(BuildContext context) {
     final ui = ref.watch(workspaceProvider);
-    final tags = ref.watch(tagsProvider);
     final cs = ref.watch(commitsProvider);
-    final t = AppLocalizations.of(context);
+    final t = context.l10n;
     final screenWidth = MediaQuery.of(context).size.width;
     // 上限取「屏宽 45%」与 520 的较小值：窄窗口下不会把主库列表挤没。
     final effectiveMax = math.min(screenWidth * _maxPanelRatio, _maxPanelWidth);
@@ -110,14 +109,7 @@ class _CommitsPageState extends ConsumerState<CommitsPage> {
                     child: ListView(
                       padding: const EdgeInsets.fromLTRB(16, 12, 8, 16),
                       children: [
-                        RepoCard(
-                          ui: ui,
-                          tags: tags,
-                          cs: cs,
-                          t: t,
-                          vm: vm,
-                          onCopy: (v) => copyAndNotify(context, v, t.copied),
-                        ),
+                        const RepoCard(),
                         const SizedBox(height: 12),
                         CommitControlCard(
                           cs: cs,
@@ -133,7 +125,7 @@ class _CommitsPageState extends ConsumerState<CommitsPage> {
                           t: t,
                           onTagClick: (name) {
                             vm.viewTagFromCommit(name);
-                            context.go('/tags');
+                            context.go(AppRoutes.tags);
                           },
                           onSubmoduleClick: vm.viewSubmoduleChange,
                           onCopy: (v) => copyAndNotify(context, v, t.copied),
@@ -182,13 +174,6 @@ class _CommitsPageState extends ConsumerState<CommitsPage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: AppNavBar(
-        currentIndex: 1,
-        t: t,
-        onTap: (i) {
-          if (i == 0) context.go('/tags');
-        },
       ),
     );
   }
