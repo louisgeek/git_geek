@@ -5,6 +5,7 @@ import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
 import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
 import 'package:git_geek/shared/l10n/l10n_extensions.dart';
+import 'package:git_geek/shared/utils/string_extensions.dart';
 import 'package:git_geek/shared/widgets/clearable_text_field.dart';
 import 'package:git_geek/shared/widgets/clipboard.dart';
 import 'package:git_geek/core/git/git_url.dart';
@@ -250,8 +251,4 @@ String _subChipLabel(CommitsState cs, GitSubmodule sub, AppLocalizations t) {
       : null;
   if (branch != null && branch.isNotEmpty) buf.write('  $branch');
   return buf.toString();
-}
-
-extension on String {
-  bool get isNotBlank => trim().isNotEmpty;
 }

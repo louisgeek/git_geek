@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:git_geek/core/git/git_providers.dart';
+import 'package:git_geek/features/workspace/presentation/widgets/about_dialog.dart';
 import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
 import 'package:git_geek/shared/l10n/strings.dart';
 
@@ -46,7 +47,7 @@ class AppTitle extends ConsumerWidget {
             TextButton(
               onPressed: () => showDialog(
                 context: context,
-                builder: (_) => AboutDialog(t: t),
+                builder: (_) => AppAboutDialog(t: t),
               ),
               child: Text(t.about),
             ),
@@ -57,34 +58,6 @@ class AppTitle extends ConsumerWidget {
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-        ),
-      ],
-    );
-  }
-}
-
-/// 关于弹窗：版本 + 版权 + 关闭。
-class AboutDialog extends StatelessWidget {
-  final AppLocalizations t;
-
-  const AboutDialog({super.key, required this.t});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(t.aboutTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${t.aboutVersionLabel} $appVersion'),
-          Text(t.aboutCopyright),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.close),
         ),
       ],
     );

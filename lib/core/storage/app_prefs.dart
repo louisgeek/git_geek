@@ -1,6 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+part 'app_prefs.freezed.dart';
 part 'app_prefs.g.dart';
 
 /// SharedPreferences 实例：main() 里预加载后 override，业务只读 provider。
@@ -61,34 +63,13 @@ class SettingsRepository extends _$SettingsRepository {
 }
 
 /// 偏好快照：仓库路径、远端、语言、排序、分支。
-class SettingsState {
-  final String repoPath;
-  final String remote;
-  final String langCode;
-  final String sortModeName;
-  final String branch;
-
-  const SettingsState({
-    this.repoPath = '',
-    this.remote = 'origin',
-    this.langCode = 'zh',
-    this.sortModeName = 'semverDesc',
-    this.branch = '',
-  });
-
-  SettingsState copyWith({
-    String? repoPath,
-    String? remote,
-    String? langCode,
-    String? sortModeName,
-    String? branch,
-  }) {
-    return SettingsState(
-      repoPath: repoPath ?? this.repoPath,
-      remote: remote ?? this.remote,
-      langCode: langCode ?? this.langCode,
-      sortModeName: sortModeName ?? this.sortModeName,
-      branch: branch ?? this.branch,
-    );
-  }
+@freezed
+abstract class SettingsState with _$SettingsState {
+  const factory SettingsState({
+    @Default('') String repoPath,
+    @Default('origin') String remote,
+    @Default('zh') String langCode,
+    @Default('semverDesc') String sortModeName,
+    @Default('') String branch,
+  }) = _SettingsState;
 }
