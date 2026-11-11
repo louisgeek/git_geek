@@ -52,7 +52,7 @@ flutter run -d windows
 # Web
 flutter run -d chrome
 
-# 打 Windows 正式包（解压即用，见 build\windows\GitGeek-windows.zip）
+# 打 Windows 正式包（产物为目录：build\windows\x64\runner\Release）
 flutter build windows --release
 
 # 测试
