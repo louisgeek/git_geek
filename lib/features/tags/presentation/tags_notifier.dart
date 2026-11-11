@@ -1,4 +1,5 @@
 import 'package:git_geek/core/error/result.dart';
+import 'package:git_geek/features/tags/domain/tags_repository_contract.dart';
 import 'package:git_geek/features/tags/tags_providers.dart';
 import 'package:git_geek/features/tags/presentation/tags_state.dart';
 import 'package:git_geek/shared/l10n/strings.dart';
@@ -9,7 +10,7 @@ part 'tags_notifier.g.dart';
 
 /// Tags 子 Notifier（新架构）：唯一持有 local/remote tags + 查询/排序/过滤。
 /// 远程读取失败时读本地缓存兜底（[TagsState.remoteFromCache]）。
-/// 装配 `TagsRepository` 见 `features/tags/tags_providers.dart`。
+/// 装配见 `features/tags/tags_providers.dart`（组合根注入实现）。
 @riverpod
 class TagsNotifier extends _$TagsNotifier {
   @override
@@ -35,9 +36,10 @@ class TagsNotifier extends _$TagsNotifier {
   }) async {
     final tr = t(lang);
     state = state.copyWith(isLoadingLocal: true, localError: null);
-    final repo = ref.read(tagsRepositoryProvider);
+    final TagsRepositoryContract repo = ref.read(tagsRepositoryProvider);
     switch (await repo.resolveDir(repoPath, scope, lang)) {
       case Failure(:final message):
+        if (!ref.mounted) return;
         state = state.copyWith(
           isLoadingLocal: false,
           localError: message,
@@ -46,12 +48,14 @@ class TagsNotifier extends _$TagsNotifier {
       case Success(value: final dir):
         switch (await repo.fetchLocalTags(dir, lang)) {
           case Success(value: final tags):
+            if (!ref.mounted) return;
             state = state.copyWith(
               isLoadingLocal: false,
               localTags: tags,
               lastRefreshInfo: tr.localTagsOk(tags.length),
             );
           case Failure(:final message):
+            if (!ref.mounted) return;
             state = state.copyWith(
               isLoadingLocal: false,
               localError: message,
@@ -68,9 +72,10 @@ class TagsNotifier extends _$TagsNotifier {
   }) async {
     final tr = t(lang);
     state = state.copyWith(isLoadingRemote: true, remoteError: null);
-    final repo = ref.read(tagsRepositoryProvider);
+    final TagsRepositoryContract repo = ref.read(tagsRepositoryProvider);
     switch (await repo.resolveDir(repoPath, scope, lang)) {
       case Failure(:final message):
+        if (!ref.mounted) return;
         state = state.copyWith(
           isLoadingRemote: false,
           remoteError: message,
@@ -81,6 +86,7 @@ class TagsNotifier extends _$TagsNotifier {
             remote.trim().isEmpty ? 'origin' : remote.trim();
         switch (await repo.fetchRemoteTags(dir, trimmedRemote, lang)) {
           case Success(value: final tags):
+            if (!ref.mounted) return;
             state = state.copyWith(
               isLoadingRemote: false,
               remoteTags: tags,
@@ -89,6 +95,7 @@ class TagsNotifier extends _$TagsNotifier {
             );
           case Failure(:final message):
             final cached = await repo.cachedRemoteTags(dir, trimmedRemote);
+            if (!ref.mounted) return;
             if (cached.isEmpty) {
               state = state.copyWith(
                 isLoadingRemote: false,

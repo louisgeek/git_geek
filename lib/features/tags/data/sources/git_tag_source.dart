@@ -1,3 +1,4 @@
+import 'package:git_geek/core/error/app_error.dart';
 import 'package:git_geek/core/error/result.dart';
 import 'package:git_geek/core/git/git_runner.dart';
 import 'package:git_geek/core/git/git_url.dart';
@@ -48,7 +49,9 @@ class GitTagDataSource {
   ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      return Result.failure(tr.platformUnsupported('Web'));
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
@@ -66,9 +69,13 @@ class GitTagDataSource {
       if (base.isEmpty) return const Result.success([]);
       return Result.success(await _enrichLocal(dir, base));
     } catch (e, st) {
-      return Result.failure(
-        '${tr.localTagsFail}: ${cleanError(e)} (${tr.dirName}=${_dirOrSelf(repoPath)})',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.localTagsFail}: ${cleanError(e)} '
+          '(${tr.dirName}=${_dirOrSelf(repoPath)})',
+          command: 'show-ref',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }
@@ -82,7 +89,9 @@ class GitTagDataSource {
   ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      return Result.failure(tr.platformUnsupported('Web'));
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
@@ -96,9 +105,12 @@ class GitTagDataSource {
       if (parsed.isEmpty) return const Result.success([]);
       return Result.success(await _enrichRemote(dir, parsed));
     } catch (e, st) {
-      return Result.failure(
-        '${tr.remoteTagsFail}: ${cleanError(e)} (remote=$remote)',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.remoteTagsFail}: ${cleanError(e)} (remote=$remote)',
+          command: 'ls-remote',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }

@@ -1,4 +1,5 @@
-import 'package:git_geek/core/storage/app_prefs.dart';
+import 'package:git_geek/core/config/app_config.dart';
+import 'package:git_geek/core/storage/settings_repository.dart';
 import 'package:git_geek/core/git/remote_repo.dart';
 import 'package:git_geek/core/git/git_providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
@@ -125,13 +126,10 @@ class WorkspaceNotifier extends _$WorkspaceNotifier {
       lang: state.lang,
     ).then((_) => notifier.loadSubmoduleLogs(
           repoPath: state.repoPath,
-          limit: _subLogLimit,
+          limit: AppConfig.submoduleLogLimit,
           lang: state.lang,
         ));
   }
-
-  /// 参照面板每个子库展示的记录条数。
-  static const int _subLogLimit = 10;
 
   void refreshBranches() =>
       ref.read(commitsProvider.notifier).loadBranches(

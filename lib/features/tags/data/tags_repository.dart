@@ -1,15 +1,18 @@
+import 'package:git_geek/core/config/app_config.dart';
+import 'package:git_geek/core/error/app_error.dart';
 import 'package:git_geek/core/error/result.dart';
 import 'package:git_geek/core/storage/database.dart';
 import 'package:git_geek/features/tags/data/sources/git_tag_source.dart';
 import 'package:git_geek/core/git/remote_repo.dart';
 import 'package:git_geek/shared/l10n/strings.dart';
 import 'package:git_geek/features/tags/domain/git_tag.dart';
+import 'package:git_geek/features/tags/domain/tags_repository_contract.dart';
 import 'package:logger/logger.dart';
 
 /// Tags 仓储：Notifier 只调这里，不直调 DataSource / Sembast。
 /// 策略：本地 tags 走 git CLI 直读；远程 tags 写透 Sembast 做离线兜底。
 /// 装配见 `features/tags/tags_providers.dart`。
-class TagsRepository {
+class TagsRepository implements TagsRepositoryContract {
   final AppDatabase _db;
   final Logger _log;
   final GitTagDataSource _dataSource;
@@ -18,6 +21,7 @@ class TagsRepository {
   TagsRepository(this._db, this._log, this._dataSource, this._resolver);
 
   /// 把 repoPath+scope 解析成实际生效目录（远程 URL 会触发克隆/增量更新）。
+  @override
   Future<Result<String>> resolveDir(
     String repoPath,
     String scope,
@@ -29,16 +33,21 @@ class TagsRepository {
       );
     } catch (e, st) {
       _log.w('[tags] resolveDir 失败 $repoPath', error: e, stackTrace: st);
-      return Result.failure(cleanError(e), cause: e, stackTrace: st);
+      return Result.failureOf(
+        GitCommandError(cleanError(e), cause: e),
+        stackTrace: st,
+      );
     }
   }
 
   /// 拉取本地 tag：走 git CLI 直读。
+  @override
   Future<Result<List<GitTag>>> fetchLocalTags(String dir, AppLang lang) {
     return _dataSource.fetchLocalTags(dir, lang);
   }
 
   /// 拉取远程 tag：成功写透缓存，供离线兜底。
+  @override
   Future<Result<List<GitTag>>> fetchRemoteTags(
     String dir,
     String remote,
@@ -68,15 +77,16 @@ class TagsRepository {
   }
 
   /// 离线兜底：无网/git 失败时读缓存（过期按未命中处理）。
+  @override
   Future<List<GitTag>> cachedRemoteTags(
     String dir,
     String remote, {
-    Duration maxAge = const Duration(days: 7),
+    Duration? maxAge,
   }) async {
     try {
       final cache = await _db.loadRemoteTags(
         _cacheKey(dir, remote),
-        maxAge: maxAge,
+        maxAge: maxAge ?? AppConfig.remoteTagsCacheMaxAge,
       );
       return cache?.tags
               .map(

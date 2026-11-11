@@ -1,5 +1,6 @@
+import 'package:git_geek/core/config/app_config.dart';
 import 'package:git_geek/core/error/result.dart';
-import 'package:git_geek/features/commits/data/commits_repository.dart';
+import 'package:git_geek/features/commits/domain/commits_repository_contract.dart';
 import 'package:git_geek/features/commits/commits_providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
 import 'package:git_geek/shared/l10n/strings.dart';
@@ -28,6 +29,7 @@ class CommitsNotifier extends _$CommitsNotifier {
     final tr = t(lang);
     state = state.copyWith(isLoadingCommits: true, commitError: null);
     final dirResult = await _repo.resolveEffectiveDir(repoPath, scope, lang);
+    if (!ref.mounted) return;
     final dir = dirResult.valueOrNull;
     if (dir == null) {
       state = state.copyWith(
@@ -41,11 +43,12 @@ class CommitsNotifier extends _$CommitsNotifier {
       return;
     }
     final needsClone = await _repo.isRemoteAndNotCached(repoPath);
+    if (!ref.mounted) return;
     if (needsClone) {
       state = state.copyWith(isCloning: true, cloningInfo: tr.cloningToCache);
     }
     // 条数钳制到 1~5000，防过大拖慢解析。
-    final n = limit.clamp(1, 5000);
+    final n = limit.clamp(1, AppConfig.commitFetchLimitMax);
     final trimmedBranch = branch.trim();
     final results = await Future.wait([
       _repo.fetchCommits(dir, trimmedBranch, n, lang),
@@ -75,6 +78,7 @@ class CommitsNotifier extends _$CommitsNotifier {
 
     final subs = await _loadSubmoduleExtras(
         repoPath, submodules, trimmedRemote(remote), lang);
+    if (!ref.mounted) return;
 
     state = state.copyWith(
       isLoadingCommits: false,
@@ -100,6 +104,7 @@ class CommitsNotifier extends _$CommitsNotifier {
     state = state.copyWith(isLoadingBranches: true, branchError: null);
     switch (await _repo.resolveEffectiveDir(repoPath, scope, lang)) {
       case Failure(:final message):
+        if (!ref.mounted) return;
         state = state.copyWith(
           isLoadingBranches: false,
           branchError: message,
@@ -108,9 +113,11 @@ class CommitsNotifier extends _$CommitsNotifier {
       case Success(value: final dir):
         switch (await _repo.fetchBranches(dir, lang)) {
           case Success(value: final branches):
+            if (!ref.mounted) return;
             state = state.copyWith(
                 isLoadingBranches: false, branches: branches);
           case Failure(:final message):
+            if (!ref.mounted) return;
             state = state.copyWith(
               isLoadingBranches: false,
               branchError: message,
@@ -145,6 +152,7 @@ class CommitsNotifier extends _$CommitsNotifier {
           repoPath, sub.path, limit, lang);
       return MapEntry(sub.path, r.valueOrNull ?? const <GitCommit>[]);
     }));
+    if (!ref.mounted) return;
     state = state.copyWith(
       isLoadingSubmoduleLogs: false,
       submoduleLogs: {for (final e in results) e.key: e.value},
@@ -160,6 +168,7 @@ class CommitsNotifier extends _$CommitsNotifier {
         isLoadingSubmodules: true, submoduleError: null);
     switch (await _repo.fetchSubmodules(repoPath, lang)) {
       case Failure(:final message):
+        if (!ref.mounted) return;
         state = state.copyWith(
           isLoadingSubmodules: false,
           submoduleError: message,
@@ -175,6 +184,7 @@ class CommitsNotifier extends _$CommitsNotifier {
     }
     final extras = await _loadSubmoduleExtras(repoPath, state.submodules,
         trimmedRemote(state.remoteName), lang);
+    if (!ref.mounted) return;
     state = state.copyWith(remoteUrl: extras.$1, submoduleBranches: extras.$2);
   }
 
@@ -246,7 +256,8 @@ class CommitsNotifier extends _$CommitsNotifier {
   void toggleOrder() =>
       state = state.copyWith(newestFirst: !state.newestFirst);
 
-  CommitsRepository get _repo => ref.read(commitsRepositoryProvider);
+  CommitsRepositoryContract get _repo =>
+      ref.read(commitsRepositoryProvider);
 
   /// 去空 remote 名：空回退 `origin`。
   String trimmedRemote(String remote) =>

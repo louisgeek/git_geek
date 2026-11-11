@@ -1,65 +1,46 @@
 // 语言枚举 + 无 context 场景的 l10n 访问（文案源为 lib/shared/l10n/*.arb，gen_l10n 生成）
 library;
 
+// 让调用方继续只 import 本文件即可拿到 AppLang。
+export 'package:git_geek/core/config/app_lang.dart';
+
 import 'package:flutter/material.dart';
+import 'package:git_geek/core/config/app_lang.dart';
 import 'package:git_geek/core/git/git_messages.dart';
 import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
 
-/// 支持的界面语言：简体、繁体（台湾/香港桶）、英文。
-enum AppLang {
-  zh('zh'),
-  zhHant('zh_Hant'),
-  zhHantHK('zh_Hant_HK'),
-  en('en');
-
-  /// arb/系统侧的语言编码。
-  final String code;
-  const AppLang(this.code);
-
-  /// 按偏好编码解析语言：未知回退简体。
-  static AppLang of(String? code) {
-    final c = code?.trim().toLowerCase();
-    return AppLang.values.firstWhere(
-      (e) => e.code.toLowerCase() == c,
-      orElse: () => AppLang.zh,
-    );
-  }
-
+/// Flutter 侧对 core 语言枚举的扩展：Locale 转换与系统语言推断。
+///
+/// [AppLang] 本身定义在 `core/config/app_lang.dart`（纯 Dart，domain 可用），
+/// 这里只补依赖 Flutter 的 `Locale` 能力，导出后调用方仍只 import 本文件。
+extension AppLangLocaleX on AppLang {
   /// 转 Flutter Locale：繁体需带 scriptCode。
   Locale get locale => switch (this) {
-        AppLang.zhHant =>
-          const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
-        AppLang.zhHantHK => const Locale.fromSubtags(
-            languageCode: 'zh', scriptCode: 'Hant', countryCode: 'HK'),
-        _ => Locale(code),
-      };
+    AppLang.zhHant =>
+      const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+    AppLang.zhHantHK => const Locale.fromSubtags(
+        languageCode: 'zh', scriptCode: 'Hant', countryCode: 'HK'),
+    _ => Locale(code),
+  };
+}
 
-  /// 语言的自称（母语写法），不随界面语言变化
-  String get nativeName => switch (this) {
-        AppLang.zh => '中文',
-        AppLang.zhHant => '繁體中文（臺灣）',
-        AppLang.zhHantHK => '繁體中文（香港）',
-        AppLang.en => 'English',
-      };
-
-  /// 按系统 locale 推断默认语言（CLDR 规则）：
-  /// zh-Hant-* → 看地区（HK/MO 归香港桶，其余归台湾桶）；
-  /// 无 script 时 HK/MO → 香港桶，TW → 台湾桶；
-  /// zh-Hans-*/zh-CN/裸 zh/非 zh → 简体。
-  static AppLang fromLocale(Locale locale) {
-    if (locale.languageCode != 'zh') return AppLang.zh;
-    final script = locale.scriptCode?.toLowerCase();
-    final region = locale.countryCode?.toUpperCase();
-    if (script == 'hans') return AppLang.zh;
-    if (script == 'hant') {
-      return (region == 'HK' || region == 'MO')
-          ? AppLang.zhHantHK
-          : AppLang.zhHant;
-    }
-    if (region == 'HK' || region == 'MO') return AppLang.zhHantHK;
-    if (region == 'TW') return AppLang.zhHant;
-    return AppLang.zh;
+/// 按系统 locale 推断默认语言（CLDR 规则）：
+/// zh-Hant-* → 看地区（HK/MO 归香港桶，其余归台湾桶）；
+/// 无 script 时 HK/MO → 香港桶，TW → 台湾桶；
+/// zh-Hans-*/zh-CN/裸 zh/非 zh → 简体。
+AppLang appLangFromLocale(Locale locale) {
+  if (locale.languageCode != 'zh') return AppLang.zh;
+  final script = locale.scriptCode?.toLowerCase();
+  final region = locale.countryCode?.toUpperCase();
+  if (script == 'hans') return AppLang.zh;
+  if (script == 'hant') {
+    return (region == 'HK' || region == 'MO')
+        ? AppLang.zhHantHK
+        : AppLang.zhHant;
   }
+  if (region == 'HK' || region == 'MO') return AppLang.zhHantHK;
+  if (region == 'TW') return AppLang.zhHant;
+  return AppLang.zh;
 }
 
 /// 应用版本号：关于弹窗展示用。

@@ -24,7 +24,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     // 首帧后异步初始化 workspace，避免在 initState 同步读写 provider。
     Future.microtask(
       () => ref.read(workspaceProvider.notifier).init(
-            systemDefault: AppLang.fromLocale(
+            systemDefault: appLangFromLocale(
               WidgetsBinding.instance.platformDispatcher.locale,
             ),
           ),

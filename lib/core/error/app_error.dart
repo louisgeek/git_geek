@@ -35,3 +35,26 @@ final class ServerError extends AppError {
 final class UnknownError extends AppError {
   const UnknownError(super.message, {super.statusCode, super.cause});
 }
+
+/// 本地 git CLI 执行失败（非零退出、命令缺失、仓库不可用等）。
+/// git 是本地进程而非网络调用，单列一类才能让调用方区分
+/// 「环境问题」与「网络问题」，分别给不同引导文案。
+final class GitCommandError extends AppError {
+  /// git 进程退出码；命令未启动时为 `null`。
+  final int? exitCode;
+
+  /// 触发失败的子命令（如 `log`、`ls-remote`），便于日志定位。
+  final String? command;
+
+  const GitCommandError(
+    super.message, {
+    this.exitCode,
+    this.command,
+    super.cause,
+  });
+}
+
+/// 当前平台不支持本地 git（如 Web）。
+final class PlatformUnsupportedError extends AppError {
+  const PlatformUnsupportedError(super.message, {super.cause});
+}

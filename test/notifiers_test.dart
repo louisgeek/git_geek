@@ -1,32 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:git_geek/core/error/result.dart';
-import 'package:git_geek/core/storage/database.dart';
-import 'package:git_geek/features/commits/data/sources/git_commit_source.dart';
-import 'package:git_geek/core/git/git_runner_stub.dart';
-import 'package:git_geek/features/tags/data/sources/git_tag_source.dart';
-import 'package:git_geek/core/git/remote_repo.dart';
-import 'package:git_geek/features/commits/data/commits_repository.dart';
+import 'package:git_geek/core/error/app_error.dart';
+import 'package:git_geek/features/commits/domain/commits_repository_contract.dart';
 import 'package:git_geek/features/commits/commits_providers.dart';
 import 'package:git_geek/features/commits/presentation/commits_notifier.dart';
 import 'package:git_geek/features/commits/presentation/commits_state.dart';
-import 'package:git_geek/features/tags/data/tags_repository.dart';
+import 'package:git_geek/features/tags/domain/tags_repository_contract.dart';
 import 'package:git_geek/features/tags/tags_providers.dart';
 import 'package:git_geek/features/tags/presentation/tags_notifier.dart';
 import 'package:git_geek/shared/l10n/strings.dart';
 import 'package:git_geek/features/commits/domain/git_commit.dart';
 import 'package:git_geek/features/tags/domain/git_tag.dart';
-import 'package:logger/logger.dart';
 
-// 不碰真实 git：fake 仓储直接返回固定数据。
-final _fakeRunner = NoopGitRunner();
-
-class FakeTagsRepository extends TagsRepository {
-  FakeTagsRepository()
-      : super(AppDatabase.memory(), Logger(),
-            GitTagDataSource(_fakeRunner, RemoteRepoResolver(_fakeRunner)),
-            RemoteRepoResolver(_fakeRunner));
-
+// 不碰真实 git：fake 仓储直接返回固定数据（实现 domain 契约，无需触碰 data 层）。
+class FakeTagsRepository implements TagsRepositoryContract {
   @override
   Future<Result<String>> resolveDir(
           String repoPath, String scope, AppLang lang) async =>
@@ -46,6 +34,14 @@ class FakeTagsRepository extends TagsRepository {
       const Result.success([
         GitTag(name: 'v1.0.0', commitSha: 'aaa', source: TagSource.remote),
       ]);
+
+  @override
+  Future<List<GitTag>> cachedRemoteTags(
+    String dir,
+    String remote, {
+    Duration? maxAge,
+  }) async =>
+      const [];
 }
 
 /// 远程读取失败、缓存有数据：应走兜底并置 remoteFromCache。
@@ -53,26 +49,21 @@ class FailingRemoteTagsRepository extends FakeTagsRepository {
   @override
   Future<Result<List<GitTag>>> fetchRemoteTags(
           String dir, String remote, AppLang lang) async =>
-      const Result.failure('network down');
+      const Result.failure('network down',
+              error: NetworkError('network down'));
 
   @override
   Future<List<GitTag>> cachedRemoteTags(
     String dir,
     String remote, {
-    Duration maxAge = const Duration(days: 7),
+    Duration? maxAge,
   }) async =>
       const [
         GitTag(name: 'v9.9.9', commitSha: 'zzz', source: TagSource.remote),
       ];
 }
 
-class FakeCommitsRepository extends CommitsRepository {
-  FakeCommitsRepository()
-      : super(
-            GitCommitDataSource(_fakeRunner, RemoteRepoResolver(_fakeRunner)),
-            Logger(),
-            RemoteRepoResolver(_fakeRunner));
-
+class FakeCommitsRepository implements CommitsRepositoryContract {
   @override
   Future<Result<String>> resolveEffectiveDir(
           String repoPath, String scope, AppLang lang) async =>
@@ -120,6 +111,11 @@ class FakeCommitsRepository extends CommitsRepository {
   Future<Result<String>> fetchSubmoduleBranch(
           String dir, String subPath, AppLang lang) async =>
       const Result.success('main');
+
+  @override
+  Future<Result<List<GitCommit>>> fetchSubmoduleRecentCommits(
+          String dir, String subPath, int limit, AppLang lang) async =>
+      const Result.success([]);
 }
 
 void main() {

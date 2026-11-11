@@ -1,9 +1,7 @@
 // ignore_for_file: invalid_annotation_target
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:git_geek/shared/l10n/gen/app_localizations.dart';
 
 part 'git_commit.freezed.dart';
-part 'git_commit.g.dart';
 
 /// 一条提交记录
 @freezed
@@ -19,9 +17,6 @@ abstract class GitCommit with _$GitCommit {
     String? body,
     @Default([]) List<SubmoduleChange> submoduleChanges,
   }) = _GitCommit;
-
-  factory GitCommit.fromJson(Map<String, dynamic> json) =>
-      _$GitCommitFromJson(json);
 }
 
 /// 提交的便捷取值：短 sha 与非 tag 引用。
@@ -48,9 +43,6 @@ abstract class GitBranch with _$GitBranch {
     required String name,
     @Default(false) bool isCurrent,
   }) = _GitBranch;
-
-  factory GitBranch.fromJson(Map<String, dynamic> json) =>
-      _$GitBranchFromJson(json);
 }
 
 /// 提交列表的关键字过滤。
@@ -80,23 +72,6 @@ extension CommitQueryX on List<GitCommit> {
 /// 子模块状态：正常、未初始化、有修改、冲突。
 enum SubmoduleStatus { ok, uninitialized, modified, conflict }
 
-/// 子模块状态的本地化文案。
-extension SubmoduleStatusX on SubmoduleStatus {
-  /// 取该状态的展示文案（正常返回空串）。
-  String label(AppLocalizations t) {
-    switch (this) {
-      case SubmoduleStatus.ok:
-        return '';
-      case SubmoduleStatus.uninitialized:
-        return t.subUninitialized;
-      case SubmoduleStatus.modified:
-        return t.subModified;
-      case SubmoduleStatus.conflict:
-        return t.subConflict;
-    }
-  }
-}
-
 /// 主仓库里上一次经手该 id 的提交
 @freezed
 abstract class SubmoduleRecord with _$SubmoduleRecord {
@@ -107,9 +82,6 @@ abstract class SubmoduleRecord with _$SubmoduleRecord {
     String? subject,
     @Default(false) bool isMerge,
   }) = _SubmoduleRecord;
-
-  factory SubmoduleRecord.fromJson(Map<String, dynamic> json) =>
-      _$SubmoduleRecordFromJson(json);
 }
 
 /// 主仓库某次提交里子模块指针的变化
@@ -132,9 +104,6 @@ abstract class SubmoduleChange with _$SubmoduleChange {
     String? droppedSha,
     String? droppedFromParent,
   }) = _SubmoduleChange;
-
-  factory SubmoduleChange.fromJson(Map<String, dynamic> json) =>
-      _$SubmoduleChangeFromJson(json);
 }
 
 /// 子模块指针变化的便捷判断。
@@ -159,9 +128,6 @@ abstract class GitSubmodule with _$GitSubmodule {
     String? branch,
     @Default(SubmoduleStatus.ok) SubmoduleStatus status,
   }) = _GitSubmodule;
-
-  factory GitSubmodule.fromJson(Map<String, dynamic> json) =>
-      _$GitSubmoduleFromJson(json);
 }
 
 /// 子模块的便捷取值：短 sha 与展示名。

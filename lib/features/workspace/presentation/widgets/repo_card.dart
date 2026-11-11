@@ -13,6 +13,7 @@ import 'package:git_geek/features/commits/presentation/commits_state.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_notifier.dart';
 import 'package:git_geek/features/workspace/presentation/workspace_state.dart';
 import 'package:git_geek/features/commits/domain/git_commit.dart';
+import 'package:git_geek/features/commits/presentation/commit_labels.dart';
 
 /// 仓库配置卡（原 GitTagPage._buildRepoCard，原样迁移仅换调用方式）：
 /// 自己 watch workspace/tags/commits 三份 state，调用方只管摆位（`const RepoCard()`）。

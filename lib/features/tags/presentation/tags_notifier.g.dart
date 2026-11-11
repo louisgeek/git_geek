@@ -10,19 +10,19 @@ part of 'tags_notifier.dart';
 // ignore_for_file: type=lint, type=warning
 /// Tags 子 Notifier（新架构）：唯一持有 local/remote tags + 查询/排序/过滤。
 /// 远程读取失败时读本地缓存兜底（[TagsState.remoteFromCache]）。
-/// 装配 `TagsRepository` 见 `features/tags/tags_providers.dart`。
+/// 装配见 `features/tags/tags_providers.dart`（组合根注入实现）。
 
 @ProviderFor(TagsNotifier)
 final tagsProvider = TagsNotifierProvider._();
 
 /// Tags 子 Notifier（新架构）：唯一持有 local/remote tags + 查询/排序/过滤。
 /// 远程读取失败时读本地缓存兜底（[TagsState.remoteFromCache]）。
-/// 装配 `TagsRepository` 见 `features/tags/tags_providers.dart`。
+/// 装配见 `features/tags/tags_providers.dart`（组合根注入实现）。
 final class TagsNotifierProvider
     extends $NotifierProvider<TagsNotifier, TagsState> {
   /// Tags 子 Notifier（新架构）：唯一持有 local/remote tags + 查询/排序/过滤。
   /// 远程读取失败时读本地缓存兜底（[TagsState.remoteFromCache]）。
-  /// 装配 `TagsRepository` 见 `features/tags/tags_providers.dart`。
+  /// 装配见 `features/tags/tags_providers.dart`（组合根注入实现）。
   TagsNotifierProvider._()
     : super(
         from: null,
@@ -50,11 +50,11 @@ final class TagsNotifierProvider
   }
 }
 
-String _$tagsNotifierHash() => r'2b73578cbafca93b4c059fc43429efbbbb34ff62';
+String _$tagsNotifierHash() => r'105d7b2d82ef58a4fbec06cf8eac05031fb0f2e2';
 
 /// Tags 子 Notifier（新架构）：唯一持有 local/remote tags + 查询/排序/过滤。
 /// 远程读取失败时读本地缓存兜底（[TagsState.remoteFromCache]）。
-/// 装配 `TagsRepository` 见 `features/tags/tags_providers.dart`。
+/// 装配见 `features/tags/tags_providers.dart`（组合根注入实现）。
 
 abstract class _$TagsNotifier extends $Notifier<TagsState> {
   TagsState build();

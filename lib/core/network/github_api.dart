@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:git_geek/core/config/app_config.dart';
 import 'package:git_geek/core/error/app_error.dart';
 import 'package:git_geek/core/error/result.dart';
 
@@ -15,12 +16,12 @@ class GithubApi {
   Future<Result<List<Map<String, dynamic>>>> listTags({
     required String owner,
     required String repo,
-    int perPage = 100,
+    int perPage = AppConfig.githubTagsPerPage,
     CancelToken? cancelToken,
   }) async {
     try {
       final res = await _dio.get<List<dynamic>>(
-        'https://api.github.com/repos/$owner/$repo/tags',
+        '${AppConfig.githubApiBaseUrl}/repos/$owner/$repo/tags',
         queryParameters: {'per_page': perPage},
         cancelToken: cancelToken,
       );
@@ -31,10 +32,16 @@ class GithubApi {
       // 优先透出拦截器已映射的 AppError 信息，调用方只读 message 字符串。
       final mapped = e.error;
       if (mapped is AppError) {
-        return Result.failure(mapped.message, cause: e, stackTrace: st);
+        return Result.failure(
+          mapped.message,
+          error: mapped,
+          cause: e,
+          stackTrace: st,
+        );
       }
       return Result.failure(
         cleanError(e.message ?? e.toString()),
+        error: UnknownError(cleanError(e.message ?? e.toString()), cause: e),
         cause: e,
         stackTrace: st,
       );

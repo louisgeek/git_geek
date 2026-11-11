@@ -9,17 +9,17 @@ part of 'theme_mode_notifier.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// 主题模式（跟随系统/亮/暗），全局常驻。
-/// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（暂不涉及先不接）。
+/// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（core/storage/settings_repository.dart，暂不涉及先不接）。
 
 @ProviderFor(ThemeModeNotifier)
 final themeModeProvider = ThemeModeNotifierProvider._();
 
 /// 主题模式（跟随系统/亮/暗），全局常驻。
-/// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（暂不涉及先不接）。
+/// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（core/storage/settings_repository.dart，暂不涉及先不接）。
 final class ThemeModeNotifierProvider
     extends $NotifierProvider<ThemeModeNotifier, ThemeMode> {
   /// 主题模式（跟随系统/亮/暗），全局常驻。
-  /// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（暂不涉及先不接）。
+  /// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（core/storage/settings_repository.dart，暂不涉及先不接）。
   ThemeModeNotifierProvider._()
     : super(
         from: null,
@@ -50,7 +50,7 @@ final class ThemeModeNotifierProvider
 String _$themeModeNotifierHash() => r'62c8d046edfe86f9b84b433650c856582779846a';
 
 /// 主题模式（跟随系统/亮/暗），全局常驻。
-/// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（暂不涉及先不接）。
+/// 默认跟随系统，设置页后续可接 SettingsRepository 持久化（core/storage/settings_repository.dart，暂不涉及先不接）。
 
 abstract class _$ThemeModeNotifier extends $Notifier<ThemeMode> {
   ThemeMode build();

@@ -12,7 +12,6 @@ part of 'git_tag.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$GitTag {
 
@@ -23,8 +22,6 @@ mixin _$GitTag {
 @pragma('vm:prefer-inline')
 $GitTagCopyWith<GitTag> get copyWith => _$GitTagCopyWithImpl<GitTag>(this as GitTag, _$identity);
 
-  /// Serializes this GitTag to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -33,7 +30,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GitTag&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.commitSha, _this.commitSha) || other.commitSha == _this.commitSha)&&(identical(other.tagObjectSha, _this.tagObjectSha) || other.tagObjectSha == _this.tagObjectSha)&&(identical(other.isAnnotated, _this.isAnnotated) || other.isAnnotated == _this.isAnnotated)&&(identical(other.tagger, _this.tagger) || other.tagger == _this.tagger)&&(identical(other.tagDate, _this.tagDate) || other.tagDate == _this.tagDate)&&(identical(other.tagMessage, _this.tagMessage) || other.tagMessage == _this.tagMessage)&&(identical(other.commitAuthor, _this.commitAuthor) || other.commitAuthor == _this.commitAuthor)&&(identical(other.commitDate, _this.commitDate) || other.commitDate == _this.commitDate)&&(identical(other.commitSubject, _this.commitSubject) || other.commitSubject == _this.commitSubject)&&(identical(other.commitBody, _this.commitBody) || other.commitBody == _this.commitBody)&&(identical(other.source, _this.source) || other.source == _this.source));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as GitTag;
@@ -223,11 +220,11 @@ return $default(_that.name,_that.commitSha,_that.tagObjectSha,_that.isAnnotated,
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _GitTag implements GitTag {
   const _GitTag({required this.name, this.commitSha, this.tagObjectSha, this.isAnnotated, this.tagger, this.tagDate, this.tagMessage, this.commitAuthor, this.commitDate, this.commitSubject, this.commitBody, this.source = TagSource.local});
-  factory _GitTag.fromJson(Map<String, dynamic> json) => _$GitTagFromJson(json);
+  
 
 @override final  String name;
 @override final  String? commitSha;
@@ -248,17 +245,14 @@ class _GitTag implements GitTag {
 @pragma('vm:prefer-inline')
 _$GitTagCopyWith<_GitTag> get copyWith => __$GitTagCopyWithImpl<_GitTag>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$GitTagToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _GitTag&&(identical(other.name, name) || other.name == name)&&(identical(other.commitSha, commitSha) || other.commitSha == commitSha)&&(identical(other.tagObjectSha, tagObjectSha) || other.tagObjectSha == tagObjectSha)&&(identical(other.isAnnotated, isAnnotated) || other.isAnnotated == isAnnotated)&&(identical(other.tagger, tagger) || other.tagger == tagger)&&(identical(other.tagDate, tagDate) || other.tagDate == tagDate)&&(identical(other.tagMessage, tagMessage) || other.tagMessage == tagMessage)&&(identical(other.commitAuthor, commitAuthor) || other.commitAuthor == commitAuthor)&&(identical(other.commitDate, commitDate) || other.commitDate == commitDate)&&(identical(other.commitSubject, commitSubject) || other.commitSubject == commitSubject)&&(identical(other.commitBody, commitBody) || other.commitBody == commitBody)&&(identical(other.source, source) || other.source == source));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,name,commitSha,tagObjectSha,isAnnotated,tagger,tagDate,tagMessage,commitAuthor,commitDate,commitSubject,commitBody,source);
@@ -315,7 +309,6 @@ as TagSource,
 
 }
 
-
 /// @nodoc
 mixin _$TagCompareItem {
 
@@ -326,8 +319,6 @@ mixin _$TagCompareItem {
 @pragma('vm:prefer-inline')
 $TagCompareItemCopyWith<TagCompareItem> get copyWith => _$TagCompareItemCopyWithImpl<TagCompareItem>(this as TagCompareItem, _$identity);
 
-  /// Serializes this TagCompareItem to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -336,7 +327,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is TagCompareItem&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.local, _this.local) || other.local == _this.local)&&(identical(other.remote, _this.remote) || other.remote == _this.remote)&&(identical(other.status, _this.status) || other.status == _this.status));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as TagCompareItem;
@@ -542,11 +533,11 @@ return $default(_that.name,_that.local,_that.remote,_that.status);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _TagCompareItem implements TagCompareItem {
   const _TagCompareItem({required this.name, this.local, this.remote, required this.status});
-  factory _TagCompareItem.fromJson(Map<String, dynamic> json) => _$TagCompareItemFromJson(json);
+  
 
 @override final  String name;
 @override final  GitTag? local;
@@ -559,17 +550,14 @@ class _TagCompareItem implements TagCompareItem {
 @pragma('vm:prefer-inline')
 _$TagCompareItemCopyWith<_TagCompareItem> get copyWith => __$TagCompareItemCopyWithImpl<_TagCompareItem>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$TagCompareItemToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _TagCompareItem&&(identical(other.name, name) || other.name == name)&&(identical(other.local, local) || other.local == local)&&(identical(other.remote, remote) || other.remote == remote)&&(identical(other.status, status) || other.status == status));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,name,local,remote,status);
@@ -642,7 +630,6 @@ $GitTagCopyWith<$Res>? get remote {
 }
 }
 
-
 /// @nodoc
 mixin _$TagStats {
 
@@ -653,8 +640,6 @@ mixin _$TagStats {
 @pragma('vm:prefer-inline')
 $TagStatsCopyWith<TagStats> get copyWith => _$TagStatsCopyWithImpl<TagStats>(this as TagStats, _$identity);
 
-  /// Serializes this TagStats to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -663,7 +648,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is TagStats&&(identical(other.localCount, _this.localCount) || other.localCount == _this.localCount)&&(identical(other.remoteCount, _this.remoteCount) || other.remoteCount == _this.remoteCount)&&(identical(other.syncedCount, _this.syncedCount) || other.syncedCount == _this.syncedCount)&&(identical(other.onlyLocalCount, _this.onlyLocalCount) || other.onlyLocalCount == _this.onlyLocalCount)&&(identical(other.onlyRemoteCount, _this.onlyRemoteCount) || other.onlyRemoteCount == _this.onlyRemoteCount)&&(identical(other.divergedCount, _this.divergedCount) || other.divergedCount == _this.divergedCount));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as TagStats;
@@ -847,11 +832,11 @@ return $default(_that.localCount,_that.remoteCount,_that.syncedCount,_that.onlyL
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _TagStats implements TagStats {
   const _TagStats({this.localCount = 0, this.remoteCount = 0, this.syncedCount = 0, this.onlyLocalCount = 0, this.onlyRemoteCount = 0, this.divergedCount = 0});
-  factory _TagStats.fromJson(Map<String, dynamic> json) => _$TagStatsFromJson(json);
+  
 
 @override@JsonKey() final  int localCount;
 @override@JsonKey() final  int remoteCount;
@@ -866,17 +851,14 @@ class _TagStats implements TagStats {
 @pragma('vm:prefer-inline')
 _$TagStatsCopyWith<_TagStats> get copyWith => __$TagStatsCopyWithImpl<_TagStats>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$TagStatsToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _TagStats&&(identical(other.localCount, localCount) || other.localCount == localCount)&&(identical(other.remoteCount, remoteCount) || other.remoteCount == remoteCount)&&(identical(other.syncedCount, syncedCount) || other.syncedCount == syncedCount)&&(identical(other.onlyLocalCount, onlyLocalCount) || other.onlyLocalCount == onlyLocalCount)&&(identical(other.onlyRemoteCount, onlyRemoteCount) || other.onlyRemoteCount == onlyRemoteCount)&&(identical(other.divergedCount, divergedCount) || other.divergedCount == divergedCount));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,localCount,remoteCount,syncedCount,onlyLocalCount,onlyRemoteCount,divergedCount);

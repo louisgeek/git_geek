@@ -1,3 +1,5 @@
+import 'package:git_geek/core/config/app_config.dart';
+import 'package:git_geek/core/error/app_error.dart';
 import 'package:git_geek/core/error/result.dart';
 import 'package:git_geek/core/git/git_runner.dart';
 import 'package:git_geek/core/git/git_url.dart';
@@ -31,12 +33,14 @@ class GitCommitDataSource {
   ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      return Result.failure(tr.platformUnsupported('Web'));
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
       // 条数钳制到 1~5000，防过大拖慢解析。
-      final n = limit.clamp(1, 5000);
+      final n = limit.clamp(1, AppConfig.commitFetchLimitMax);
       final args = [
         'log',
         '--topo-order',
@@ -58,9 +62,12 @@ class GitCommitDataSource {
         await fillRecordGaps(dir, attachSubmoduleRecordInfo(withDriftEnriched)),
       );
     } catch (e, st) {
-      return Result.failure(
-        '${tr.commitsFail}: ${cleanError(e)} (${tr.dirName}=${repoPath.trim().isEmpty ? '.' : repoPath.trim()})',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.commitsFail}: ${cleanError(e)} (${tr.dirName}=${repoPath.trim().isEmpty ? '.' : repoPath.trim()})',
+          command: 'log',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }
@@ -73,7 +80,9 @@ class GitCommitDataSource {
   ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      return Result.failure(tr.platformUnsupported('Web'));
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
@@ -85,9 +94,12 @@ class GitCommitDataSource {
       if (!out.ok) throw Exception(out.stderr);
       return Result.success(GitLogParser.parseBranches(out.stdout));
     } catch (e, st) {
-      return Result.failure(
-        '${tr.branchesFail}: ${cleanError(e)}',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.branchesFail}: ${cleanError(e)}',
+          command: 'branch',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }
@@ -100,7 +112,9 @@ class GitCommitDataSource {
   ) async {
     final tr = t(lang);
     if (!supportsNativeGit) {
-      return Result.failure(tr.platformUnsupported('Web'));
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
     }
     try {
       final dir = await _resolveRepo(repoPath, lang);
@@ -108,9 +122,12 @@ class GitCommitDataSource {
       if (!out.ok) throw Exception(out.stderr);
       return Result.success(GitSubmoduleParser.parse(out.stdout));
     } catch (e, st) {
-      return Result.failure(
-        '${tr.submodulesFail}: ${cleanError(e)}',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.submodulesFail}: ${cleanError(e)}',
+          command: 'submodule',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }
@@ -123,7 +140,11 @@ class GitCommitDataSource {
     AppLang lang,
   ) async {
     final tr = t(lang);
-    if (!supportsNativeGit) return Result.failure(tr.platformUnsupported('Web'));
+    if (!supportsNativeGit) {
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
+    }
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final out = await _runner.run(dir, [
@@ -134,9 +155,12 @@ class GitCommitDataSource {
       if (!out.ok) throw Exception(out.stderr);
       return Result.success(out.stdout.trim());
     } catch (e, st) {
-      return Result.failure(
-        '${tr.remoteUrlFail}: ${cleanError(e)}',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.remoteUrlFail}: ${cleanError(e)}',
+          command: 'remote',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }
@@ -149,7 +173,11 @@ class GitCommitDataSource {
     AppLang lang,
   ) async {
     final tr = t(lang);
-    if (!supportsNativeGit) return Result.failure(tr.platformUnsupported('Web'));
+    if (!supportsNativeGit) {
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
+    }
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final subDir = '$dir/$subPath';
@@ -157,9 +185,12 @@ class GitCommitDataSource {
       if (!out.ok) throw Exception(out.stderr);
       return Result.success(out.stdout.trim());
     } catch (e, st) {
-      return Result.failure(
-        '${tr.submoduleBranchFail}: ${cleanError(e)}',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.submoduleBranchFail}: ${cleanError(e)}',
+          command: 'rev-parse',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }
@@ -174,9 +205,13 @@ class GitCommitDataSource {
     AppLang lang,
   ) async {
     final tr = t(lang);
-    if (!supportsNativeGit) return Result.failure(tr.platformUnsupported('Web'));
+    if (!supportsNativeGit) {
+      return Result.failureOf(
+        PlatformUnsupportedError(tr.platformUnsupported('Web')),
+      );
+    }
     // 条数钳制到 1~50，参照面板只需最近几条。
-    final n = limit.clamp(1, 50);
+    final n = limit.clamp(1, AppConfig.submoduleLogLimit);
     try {
       final dir = await _resolveRepo(repoPath, lang);
       final out = await _runner.run('$dir/$subPath', [
@@ -189,9 +224,12 @@ class GitCommitDataSource {
       if (!out.ok) throw Exception(out.stderr);
       return Result.success(GitLogParser.parse(out.stdout));
     } catch (e, st) {
-      return Result.failure(
-        '${tr.submoduleLogFail}: ${cleanError(e)}',
-        cause: e,
+      return Result.failureOf(
+        GitCommandError(
+          '${tr.submoduleLogFail}: ${cleanError(e)}',
+          command: 'log',
+          cause: e,
+        ),
         stackTrace: st,
       );
     }

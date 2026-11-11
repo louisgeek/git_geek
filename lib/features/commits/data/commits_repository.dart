@@ -1,15 +1,17 @@
+import 'package:git_geek/core/error/app_error.dart';
 import 'package:git_geek/core/error/result.dart';
 import 'package:git_geek/features/commits/data/sources/git_commit_source.dart';
 import 'package:git_geek/core/git/git_url.dart';
 import 'package:git_geek/core/git/remote_repo.dart';
 import 'package:git_geek/shared/l10n/strings.dart';
+import 'package:git_geek/features/commits/domain/commits_repository_contract.dart';
 import 'package:git_geek/features/commits/domain/git_commit.dart';
 import 'package:logger/logger.dart';
 
 /// Commits/branches/submodules 仓储
 /// 约定调用方先调 [resolveEffectiveDir] 一次拿到生效目录，再并行调各 fetch，
 /// 避免三次 resolve 触发三次 fetch --tags --prune。
-class CommitsRepository {
+class CommitsRepository implements CommitsRepositoryContract {
   static const _tag = '[commits]';
 
   final GitCommitDataSource _dataSource;
@@ -19,6 +21,7 @@ class CommitsRepository {
   CommitsRepository(this._dataSource, this._log, this._resolver);
 
   /// 计算实际生效目录（含 scope），内部走 RemoteRepoResolver（带缓存/锁）。
+  @override
   Future<Result<String>> resolveEffectiveDir(
     String repoPath,
     String scope,
@@ -34,17 +37,22 @@ class CommitsRepository {
         error: e,
         stackTrace: st,
       );
-      return Result.failure(cleanError(e), cause: e, stackTrace: st);
+      return Result.failureOf(
+        GitCommandError(cleanError(e), cause: e),
+        stackTrace: st,
+      );
     }
   }
 
   /// 远程 URL 且本地无缓存（首次会触发克隆，用于显示 cloning 提示）。
+  @override
   Future<bool> isRemoteAndNotCached(String repoPath) async {
     if (!GitUrlDetector.isRemoteUrl(repoPath.trim())) return false;
     return !(await _resolver.isCached(repoPath.trim()));
   }
 
   /// 拉取提交列表。
+  @override
   Future<Result<List<GitCommit>>> fetchCommits(
     String dir,
     String branch,
@@ -63,6 +71,7 @@ class CommitsRepository {
   }
 
   /// 拉取分支列表。
+  @override
   Future<Result<List<GitBranch>>> fetchBranches(
     String dir,
     AppLang lang,
@@ -79,6 +88,7 @@ class CommitsRepository {
   }
 
   /// 拉取子模块现状。
+  @override
   Future<Result<List<GitSubmodule>>> fetchSubmodules(
     String dir,
     AppLang lang,
@@ -95,6 +105,7 @@ class CommitsRepository {
   }
 
   /// 拉取远端地址。
+  @override
   Future<Result<String>> fetchRemoteUrl(
     String dir,
     String remote,
@@ -112,6 +123,7 @@ class CommitsRepository {
   }
 
   /// 拉取子模块最近若干条提交（参照面板用，轻量）。
+  @override
   Future<Result<List<GitCommit>>> fetchSubmoduleRecentCommits(
     String dir,
     String subPath,
@@ -131,6 +143,7 @@ class CommitsRepository {
   }
 
   /// 拉取子模块当前分支。
+  @override
   Future<Result<String>> fetchSubmoduleBranch(
     String dir,
     String subPath,

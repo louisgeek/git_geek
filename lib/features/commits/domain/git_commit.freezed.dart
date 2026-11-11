@@ -12,7 +12,6 @@ part of 'git_commit.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$GitCommit {
 
@@ -23,8 +22,6 @@ mixin _$GitCommit {
 @pragma('vm:prefer-inline')
 $GitCommitCopyWith<GitCommit> get copyWith => _$GitCommitCopyWithImpl<GitCommit>(this as GitCommit, _$identity);
 
-  /// Serializes this GitCommit to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -33,7 +30,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GitCommit&&(identical(other.sha, _this.sha) || other.sha == _this.sha)&&const DeepCollectionEquality().equals(other.parents, _this.parents)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.date, _this.date) || other.date == _this.date)&&(identical(other.refs, _this.refs) || other.refs == _this.refs)&&const DeepCollectionEquality().equals(other.tags, _this.tags)&&(identical(other.subject, _this.subject) || other.subject == _this.subject)&&(identical(other.body, _this.body) || other.body == _this.body)&&const DeepCollectionEquality().equals(other.submoduleChanges, _this.submoduleChanges));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as GitCommit;
@@ -220,11 +217,11 @@ return $default(_that.sha,_that.parents,_that.author,_that.date,_that.refs,_that
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _GitCommit implements GitCommit {
   const _GitCommit({required this.sha,  List<String> parents = const [], this.author, this.date, this.refs,  List<String> tags = const [], this.subject, this.body,  List<SubmoduleChange> submoduleChanges = const []}): _parents = parents,_tags = tags,_submoduleChanges = submoduleChanges;
-  factory _GitCommit.fromJson(Map<String, dynamic> json) => _$GitCommitFromJson(json);
+  
 
 @override final  String sha;
  final  List<String> _parents;
@@ -260,17 +257,14 @@ class _GitCommit implements GitCommit {
 @pragma('vm:prefer-inline')
 _$GitCommitCopyWith<_GitCommit> get copyWith => __$GitCommitCopyWithImpl<_GitCommit>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$GitCommitToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _GitCommit&&(identical(other.sha, sha) || other.sha == sha)&&const DeepCollectionEquality().equals(other.parents, _parents)&&(identical(other.author, author) || other.author == author)&&(identical(other.date, date) || other.date == date)&&(identical(other.refs, refs) || other.refs == refs)&&const DeepCollectionEquality().equals(other.tags, _tags)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.body, body) || other.body == body)&&const DeepCollectionEquality().equals(other.submoduleChanges, _submoduleChanges));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,sha,const DeepCollectionEquality().hash(_parents),author,date,refs,const DeepCollectionEquality().hash(_tags),subject,body,const DeepCollectionEquality().hash(_submoduleChanges));
@@ -324,7 +318,6 @@ as List<SubmoduleChange>,
 
 }
 
-
 /// @nodoc
 mixin _$GitBranch {
 
@@ -335,8 +328,6 @@ mixin _$GitBranch {
 @pragma('vm:prefer-inline')
 $GitBranchCopyWith<GitBranch> get copyWith => _$GitBranchCopyWithImpl<GitBranch>(this as GitBranch, _$identity);
 
-  /// Serializes this GitBranch to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -345,7 +336,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GitBranch&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.isCurrent, _this.isCurrent) || other.isCurrent == _this.isCurrent));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as GitBranch;
@@ -525,11 +516,11 @@ return $default(_that.name,_that.isCurrent);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _GitBranch implements GitBranch {
   const _GitBranch({required this.name, this.isCurrent = false});
-  factory _GitBranch.fromJson(Map<String, dynamic> json) => _$GitBranchFromJson(json);
+  
 
 @override final  String name;
 @override@JsonKey() final  bool isCurrent;
@@ -540,17 +531,14 @@ class _GitBranch implements GitBranch {
 @pragma('vm:prefer-inline')
 _$GitBranchCopyWith<_GitBranch> get copyWith => __$GitBranchCopyWithImpl<_GitBranch>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$GitBranchToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _GitBranch&&(identical(other.name, name) || other.name == name)&&(identical(other.isCurrent, isCurrent) || other.isCurrent == isCurrent));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,name,isCurrent);
@@ -597,7 +585,6 @@ as bool,
 
 }
 
-
 /// @nodoc
 mixin _$SubmoduleRecord {
 
@@ -608,8 +595,6 @@ mixin _$SubmoduleRecord {
 @pragma('vm:prefer-inline')
 $SubmoduleRecordCopyWith<SubmoduleRecord> get copyWith => _$SubmoduleRecordCopyWithImpl<SubmoduleRecord>(this as SubmoduleRecord, _$identity);
 
-  /// Serializes this SubmoduleRecord to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -618,7 +603,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmoduleRecord&&(identical(other.sha, _this.sha) || other.sha == _this.sha)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.date, _this.date) || other.date == _this.date)&&(identical(other.subject, _this.subject) || other.subject == _this.subject)&&(identical(other.isMerge, _this.isMerge) || other.isMerge == _this.isMerge));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as SubmoduleRecord;
@@ -801,11 +786,11 @@ return $default(_that.sha,_that.author,_that.date,_that.subject,_that.isMerge);c
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _SubmoduleRecord implements SubmoduleRecord {
   const _SubmoduleRecord({required this.sha, this.author, this.date, this.subject, this.isMerge = false});
-  factory _SubmoduleRecord.fromJson(Map<String, dynamic> json) => _$SubmoduleRecordFromJson(json);
+  
 
 @override final  String sha;
 @override final  String? author;
@@ -819,17 +804,14 @@ class _SubmoduleRecord implements SubmoduleRecord {
 @pragma('vm:prefer-inline')
 _$SubmoduleRecordCopyWith<_SubmoduleRecord> get copyWith => __$SubmoduleRecordCopyWithImpl<_SubmoduleRecord>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$SubmoduleRecordToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmoduleRecord&&(identical(other.sha, sha) || other.sha == sha)&&(identical(other.author, author) || other.author == author)&&(identical(other.date, date) || other.date == date)&&(identical(other.subject, subject) || other.subject == subject)&&(identical(other.isMerge, isMerge) || other.isMerge == isMerge));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,sha,author,date,subject,isMerge);
@@ -879,7 +861,6 @@ as bool,
 
 }
 
-
 /// @nodoc
 mixin _$SubmoduleChange {
 
@@ -890,8 +871,6 @@ mixin _$SubmoduleChange {
 @pragma('vm:prefer-inline')
 $SubmoduleChangeCopyWith<SubmoduleChange> get copyWith => _$SubmoduleChangeCopyWithImpl<SubmoduleChange>(this as SubmoduleChange, _$identity);
 
-  /// Serializes this SubmoduleChange to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -900,7 +879,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is SubmoduleChange&&(identical(other.path, _this.path) || other.path == _this.path)&&(identical(other.oldSha, _this.oldSha) || other.oldSha == _this.oldSha)&&(identical(other.newSha, _this.newSha) || other.newSha == _this.newSha)&&(identical(other.oldAuthor, _this.oldAuthor) || other.oldAuthor == _this.oldAuthor)&&(identical(other.oldDate, _this.oldDate) || other.oldDate == _this.oldDate)&&(identical(other.oldSubject, _this.oldSubject) || other.oldSubject == _this.oldSubject)&&(identical(other.newAuthor, _this.newAuthor) || other.newAuthor == _this.newAuthor)&&(identical(other.newDate, _this.newDate) || other.newDate == _this.newDate)&&(identical(other.newSubject, _this.newSubject) || other.newSubject == _this.newSubject)&&(identical(other.recordedBy, _this.recordedBy) || other.recordedBy == _this.recordedBy)&&(identical(other.actualSwitchBy, _this.actualSwitchBy) || other.actualSwitchBy == _this.actualSwitchBy)&&(identical(other.resolvedInMerge, _this.resolvedInMerge) || other.resolvedInMerge == _this.resolvedInMerge)&&(identical(other.silentlyDropped, _this.silentlyDropped) || other.silentlyDropped == _this.silentlyDropped)&&(identical(other.droppedSha, _this.droppedSha) || other.droppedSha == _this.droppedSha)&&(identical(other.droppedFromParent, _this.droppedFromParent) || other.droppedFromParent == _this.droppedFromParent));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as SubmoduleChange;
@@ -1117,11 +1096,11 @@ return $default(_that.path,_that.oldSha,_that.newSha,_that.oldAuthor,_that.oldDa
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _SubmoduleChange implements SubmoduleChange {
   const _SubmoduleChange({required this.path, this.oldSha, this.newSha, this.oldAuthor, this.oldDate, this.oldSubject, this.newAuthor, this.newDate, this.newSubject, this.recordedBy, this.actualSwitchBy, this.resolvedInMerge = false, this.silentlyDropped = false, this.droppedSha, this.droppedFromParent});
-  factory _SubmoduleChange.fromJson(Map<String, dynamic> json) => _$SubmoduleChangeFromJson(json);
+  
 
 @override final  String path;
 @override final  String? oldSha;
@@ -1145,17 +1124,14 @@ class _SubmoduleChange implements SubmoduleChange {
 @pragma('vm:prefer-inline')
 _$SubmoduleChangeCopyWith<_SubmoduleChange> get copyWith => __$SubmoduleChangeCopyWithImpl<_SubmoduleChange>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$SubmoduleChangeToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _SubmoduleChange&&(identical(other.path, path) || other.path == path)&&(identical(other.oldSha, oldSha) || other.oldSha == oldSha)&&(identical(other.newSha, newSha) || other.newSha == newSha)&&(identical(other.oldAuthor, oldAuthor) || other.oldAuthor == oldAuthor)&&(identical(other.oldDate, oldDate) || other.oldDate == oldDate)&&(identical(other.oldSubject, oldSubject) || other.oldSubject == oldSubject)&&(identical(other.newAuthor, newAuthor) || other.newAuthor == newAuthor)&&(identical(other.newDate, newDate) || other.newDate == newDate)&&(identical(other.newSubject, newSubject) || other.newSubject == newSubject)&&(identical(other.recordedBy, recordedBy) || other.recordedBy == recordedBy)&&(identical(other.actualSwitchBy, actualSwitchBy) || other.actualSwitchBy == actualSwitchBy)&&(identical(other.resolvedInMerge, resolvedInMerge) || other.resolvedInMerge == resolvedInMerge)&&(identical(other.silentlyDropped, silentlyDropped) || other.silentlyDropped == silentlyDropped)&&(identical(other.droppedSha, droppedSha) || other.droppedSha == droppedSha)&&(identical(other.droppedFromParent, droppedFromParent) || other.droppedFromParent == droppedFromParent));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,path,oldSha,newSha,oldAuthor,oldDate,oldSubject,newAuthor,newDate,newSubject,recordedBy,actualSwitchBy,resolvedInMerge,silentlyDropped,droppedSha,droppedFromParent);
@@ -1239,7 +1215,6 @@ $SubmoduleRecordCopyWith<$Res>? get actualSwitchBy {
 }
 }
 
-
 /// @nodoc
 mixin _$GitSubmodule {
 
@@ -1250,8 +1225,6 @@ mixin _$GitSubmodule {
 @pragma('vm:prefer-inline')
 $GitSubmoduleCopyWith<GitSubmodule> get copyWith => _$GitSubmoduleCopyWithImpl<GitSubmodule>(this as GitSubmodule, _$identity);
 
-  /// Serializes this GitSubmodule to a JSON map.
-  Map<String, dynamic> toJson();
 
 
 @override
@@ -1260,7 +1233,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is GitSubmodule&&(identical(other.path, _this.path) || other.path == _this.path)&&(identical(other.sha, _this.sha) || other.sha == _this.sha)&&(identical(other.branch, _this.branch) || other.branch == _this.branch)&&(identical(other.status, _this.status) || other.status == _this.status));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
   final _this = this as GitSubmodule;
@@ -1442,11 +1415,11 @@ return $default(_that.path,_that.sha,_that.branch,_that.status);case _:
 }
 
 /// @nodoc
-@JsonSerializable()
+
 
 class _GitSubmodule implements GitSubmodule {
   const _GitSubmodule({required this.path, this.sha, this.branch, this.status = SubmoduleStatus.ok});
-  factory _GitSubmodule.fromJson(Map<String, dynamic> json) => _$GitSubmoduleFromJson(json);
+  
 
 @override final  String path;
 @override final  String? sha;
@@ -1459,17 +1432,14 @@ class _GitSubmodule implements GitSubmodule {
 @pragma('vm:prefer-inline')
 _$GitSubmoduleCopyWith<_GitSubmodule> get copyWith => __$GitSubmoduleCopyWithImpl<_GitSubmodule>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$GitSubmoduleToJson(this, );
-}
+
 
 @override
 bool operator ==(Object other) {
     return identical(this, other) || (other.runtimeType == runtimeType&&other is _GitSubmodule&&(identical(other.path, path) || other.path == path)&&(identical(other.sha, sha) || other.sha == sha)&&(identical(other.branch, branch) || other.branch == branch)&&(identical(other.status, status) || other.status == status));
 }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
+
 @override
 int get hashCode {
     return Object.hash(runtimeType,path,sha,branch,status);

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:git_geek/core/config/app_config.dart';
+
 import 'package:crypto/crypto.dart';
 import 'package:git_geek/core/git/git_messages.dart';
 import 'package:git_geek/core/git/git_runner_base.dart';
@@ -42,21 +44,26 @@ class RemoteRepoResolver {
     if (Platform.isWindows) {
       final appData = Platform.environment['APPDATA'];
       final base = (appData != null && appData.trim().isNotEmpty)
-          ? Directory('${appData.trim()}\\GitGeek')
+          ? Directory('${appData.trim()}\\${AppConfig.cacheDirName}')
           : Directory(
-              '${Platform.environment['USERPROFILE'] ?? '.'}\\.GitGeek');
-      final dir = Directory('${base.path}\\cache');
+              '${Platform.environment['USERPROFILE'] ?? '.'}\\'
+              '.${AppConfig.cacheDirName}');
+      final dir = Directory('${base.path}\\${AppConfig.cacheSubDirName}');
       await dir.create(recursive: true);
       return dir;
     }
     try {
       final support = await getApplicationSupportDirectory();
-      final dir = Directory('${support.path}/GitGeek/cache');
+      final dir = Directory(
+        '${support.path}/${AppConfig.cacheDirName}/${AppConfig.cacheSubDirName}',
+      );
       await dir.create(recursive: true);
       return dir;
     } catch (_) {
       final home = Platform.environment['HOME'] ?? '.';
-      final dir = Directory('$home/.GitGeek/cache');
+      final dir = Directory(
+        '$home/.${AppConfig.cacheDirName}/${AppConfig.cacheSubDirName}',
+      );
       await dir.create(recursive: true);
       return dir;
     }
